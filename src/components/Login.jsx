@@ -1,25 +1,49 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Lock, ArrowLeft, Mail, KeyRound } from 'lucide-react';
+import { Lock, ArrowLeft, KeyRound } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters long.');
+      return;
+    }
+    
     setLoading(true);
+    const adminEmail = 'admin@caughton.com';
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // 1. Try to sign in with the hardcoded admin email and entered password
+      await signInWithEmailAndPassword(auth, adminEmail, password);
       toast.success('Logged in successfully!');
       navigate('/admin');
     } catch (error) {
-      toast.error('Failed to log in: ' + error.message);
+      // 2. If it fails due to user not found (first-time setup)
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        try {
+          // Attempt to register 'admin@caughton.com' with the entered password as the initial setup
+          await createUserWithEmailAndPassword(auth, adminEmail, password);
+          toast.success('Admin account initialized and logged in successfully!');
+          navigate('/admin');
+        } catch (signUpError) {
+          // If the email is already in use, the sign-in error was actually an incorrect password!
+          if (signUpError.code === 'auth/email-already-in-use') {
+            toast.error('Incorrect admin password. Please try again.');
+          } else {
+            toast.error('Failed to initialize: ' + signUpError.message);
+          }
+        }
+      } else {
+        toast.error('Failed to log in: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -52,26 +76,11 @@ export default function Login() {
           </div>
           
           <h2 className="text-3xl font-extrabold text-center mb-2">Admin Portal</h2>
-          <p className="text-xs text-neutral-500 uppercase tracking-widest text-center mb-8 font-bold">Authorized Access Only</p>
+          <p className="text-xs text-neutral-500 uppercase tracking-widest text-center mb-8 font-bold">Secret Password Verification</p>
           
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-neutral-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 font-medium"
-                  placeholder="admin@caughton.com"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Password</label>
+              <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Secret Admin Password</label>
               <div className="relative">
                 <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
@@ -83,6 +92,9 @@ export default function Login() {
                   placeholder="••••••••"
                 />
               </div>
+              <p className="text-[11px] text-neutral-500 mt-3 leading-relaxed">
+                💡 **पहला सेटअप**: यदि आप पहली बार लॉगिन कर रहे हैं, तो जो भी पासवर्ड आप यहाँ डालेंगे वही आपका स्थायी Admin Password बन जाएगा।
+              </p>
             </div>
             
             <button
