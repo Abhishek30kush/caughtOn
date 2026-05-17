@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { collection, addDoc, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
 import { ShoppingBag, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
@@ -21,6 +21,8 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([defaultProduct]);
   const [selectedProduct, setSelectedProduct] = useState(defaultProduct);
+  const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [hasManuallySelected, setHasManuallySelected] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -64,8 +66,23 @@ export default function LandingPage() {
     return unsubscribe;
   }, []);
 
+  // Listen to custom hero settings
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'hero');
+    const unsubscribeHero = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setHeroImageUrl(docSnap.data().imageUrl || '');
+      }
+    }, (err) => {
+      console.error("Error loading hero banner:", err);
+    });
+
+    return unsubscribeHero;
+  }, []);
+
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
+    setHasManuallySelected(true);
     // Reset to the product's first available size so they don't submit an invalid size selection
     if (product.sizes && product.sizes.length > 0) {
       setFormData(prev => ({ ...prev, size: product.sizes[0] }));
@@ -192,14 +209,18 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/25 to-blue-500/25 blur-[100px] -z-10 rounded-full opacity-60"></div>
           <div className="w-full aspect-[4/5] rounded-3xl overflow-hidden glass-effect border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shadow-cyan-950/20 hover:border-cyan-500/30 transition-all duration-500">
             <img 
-              src={selectedProduct.imageUrl} 
+              src={(!hasManuallySelected && heroImageUrl) ? heroImageUrl : selectedProduct.imageUrl} 
               alt={selectedProduct.title} 
               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
             {/* Absolute label over cover */}
             <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-neutral-950/80 backdrop-blur-md border border-white/5">
-              <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mb-1">Featured Drop Selection</span>
-              <h4 className="text-white font-bold text-base truncate">{selectedProduct.title}</h4>
+              <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mb-1">
+                {(!hasManuallySelected && heroImageUrl) ? "Featured Drop Showcase" : "Featured Drop Selection"}
+              </span>
+              <h4 className="text-white font-bold text-base truncate">
+                {(!hasManuallySelected && heroImageUrl) ? "EXCLUSIVELY CRAFTED DROPS" : selectedProduct.title}
+              </h4>
             </div>
           </div>
         </motion.div>

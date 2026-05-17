@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { LogOut, Package, Image as ImageIcon, CheckCircle, Clock, Upload, ListFilter, ArrowLeft, RefreshCw, Plus, Edit2, Trash2, X } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'hero'
   
   // Orders states
   const [orders, setOrders] = useState([]);
@@ -33,6 +33,13 @@ export default function AdminDashboard() {
     sizes: ['S', 'M', 'L', 'XL'],
     imageUrl: ''
   });
+
+  // Hero showcase settings states
+  const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [heroLoading, setHeroLoading] = useState(true);
+  const [heroFile, setHeroFile] = useState(null);
+  const [heroPreview, setHeroPreview] = useState(null);
+  const [heroSaving, setHeroSaving] = useState(false);
 
   const navigate = useNavigate();
 
@@ -81,6 +88,75 @@ export default function AdminDashboard() {
 
     return unsubscribe;
   }, []);
+
+  // Listen to hero settings config
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'hero');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setHeroImageUrl(data.imageUrl || '');
+        setHeroPreview(data.imageUrl || null);
+      }
+      setHeroLoading(false);
+    }, (error) => {
+      console.error("Error loading hero settings:", error);
+      setHeroLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleHeroFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setHeroFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeroPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleHeroSubmit = async (e) => {
+    e.preventDefault();
+    setHeroSaving(true);
+    let finalImageUrl = heroImageUrl;
+
+    try {
+      if (heroFile) {
+        finalImageUrl = await new Promise((resolve, reject) => {
+          const storageRef = ref(storage, `settings/hero_${Date.now()}`);
+          const uploadTask = uploadBytesResumable(storageRef, heroFile);
+          
+          uploadTask.on('state_changed',
+            null,
+            (error) => {
+              toast.error('Hero Image upload failed');
+              reject(error);
+            },
+            async () => {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(downloadURL);
+            }
+          );
+        });
+      }
+
+      await setDoc(doc(db, 'settings', 'hero'), {
+        imageUrl: finalImageUrl,
+        updatedAt: new Date()
+      }, { merge: true });
+
+      toast.success('Hero Showcase Image updated successfully!');
+      setHeroFile(null);
+    } catch (error) {
+      console.error("Error saving hero:", error);
+      toast.error('Failed to update Hero image settings.');
+    } finally {
+      setHeroSaving(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -273,6 +349,18 @@ export default function AdminDashboard() {
             >
               <ImageIcon className="w-4 h-4" />
               <span>Products Catalog</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('hero')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+                activeTab === 'hero'
+                  ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
+              }`}
+            >
+              <Upload className="w-4 h-4" />
+              <span>Hero Customizer</span>
             </button>
 
             <Link to="/" className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
@@ -486,6 +574,117 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 3: HERO BANNER CUSTOMIZER */}
+        {activeTab === 'hero' && (
+          <div className="space-y-6 w-full max-w-xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-extrabold flex items-center space-x-2 text-white">
+                <Upload className="w-5 h-5 text-cyan-400" />
+                <span>Landing Page Hero Customizer</span>
+              </h2>
+            </div>
+
+            {heroLoading ? (
+              <div className="glass-effect p-12 rounded-3xl border border-white/5 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
+              </div>
+            ) : (
+              <form onSubmit={handleHeroSubmit} className="glass-effect p-8 rounded-3xl border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-extrabold text-lg text-white">Showcase Banner Customizer</h3>
+                  <p className="text-neutral-400 text-xs font-medium leading-relaxed">
+                    This controls the main high-fidelity showcase mockup image displayed immediately next to the 
+                    <strong className="text-cyan-400"> "Explore Showcase Catalog"</strong> hero section when visitors first land on your shop.
+                  </p>
+                </div>
+
+                {/* Preview Container */}
+                <div className="space-y-3">
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest">Active Showcase Preview</label>
+                  <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 relative bg-neutral-900 shadow-inner group">
+                    {heroPreview ? (
+                      <img 
+                        src={heroPreview} 
+                        alt="Hero Preview" 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-neutral-600 gap-2">
+                        <ImageIcon className="w-12 h-12 text-neutral-700 animate-pulse" />
+                        <span className="text-xs font-bold uppercase tracking-wider">No Custom Banner Image Uploaded</span>
+                        <span className="text-[10px] text-neutral-500">Showing first dynamic product image instead</span>
+                      </div>
+                    )}
+                    {heroPreview && (
+                      <div className="absolute bottom-4 left-4 right-4 bg-neutral-950/80 backdrop-blur-sm border border-white/5 p-3 rounded-xl flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Preview Active Mode</span>
+                        <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-[9px] font-extrabold text-cyan-400 uppercase tracking-wider">Active</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Upload Action controls */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Provide Image URL</label>
+                    <input 
+                      type="url"
+                      value={heroImageUrl}
+                      onChange={(e) => {
+                        setHeroImageUrl(e.target.value);
+                        setHeroPreview(e.target.value || null);
+                      }}
+                      className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
+                      placeholder="https://images.unsplash.com/photo-... or custom uploaded URL"
+                    />
+                  </div>
+
+                  <div className="relative flex items-center justify-center py-2">
+                    <span className="absolute bg-neutral-950 px-3 text-neutral-500 text-[10px] font-black uppercase tracking-widest border border-white/5 rounded-full z-10">Or Upload Direct File</span>
+                    <div className="w-full border-b border-white/5"></div>
+                  </div>
+
+                  <div>
+                    <div className="border-2 border-dashed border-white/10 hover:border-cyan-500/40 rounded-xl p-6 text-center relative bg-neutral-950/30 transition-all duration-300">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleHeroFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="flex flex-col items-center justify-center space-y-2 text-xs font-bold text-neutral-300">
+                        <Upload className="w-6 h-6 text-cyan-400 mb-1" />
+                        <span>{heroFile ? `Selected: ${heroFile.name}` : 'Click to Upload Mockup File'}</span>
+                        <span className="text-[10px] text-neutral-500 font-medium">Recommended: High-resolution PNG or JPG</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={heroSaving}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-[0_4px_20px_rgba(6,182,212,0.25)] flex items-center justify-center gap-2 text-sm"
+                  >
+                    {heroSaving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                        <span>Uploading & Syncing Banner...</span>
+                      </>
+                    ) : (
+                      <span>Save Hero Showcase Image</span>
+                    )}
+                  </button>
+                </div>
+              </form>
             )}
           </div>
         )}
