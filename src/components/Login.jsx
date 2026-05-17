@@ -5,6 +5,28 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Lock, ArrowLeft, KeyRound } from 'lucide-react';
 
+const getCleanErrorMessage = (code, defaultMessage) => {
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+      return 'Incorrect admin password. Please try again.';
+    case 'auth/user-not-found':
+      return 'Admin account not found. Initializing setup...';
+    case 'auth/network-request-failed':
+      return 'Network connection lost. Please check your internet and try again.';
+    case 'auth/too-many-requests':
+      return 'Too many login attempts. Access has been temporarily suspended. Please try again later.';
+    case 'auth/user-disabled':
+      return 'This administrator account has been disabled.';
+    case 'auth/weak-password':
+      return 'The password is too weak. Please use a minimum of 6 characters.';
+    case 'auth/operation-not-allowed':
+      return 'Email/Password sign-in method is disabled in the database console.';
+    default:
+      return 'An unexpected authentication error occurred. Please try again.';
+  }
+};
+
 export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,11 +60,11 @@ export default function Login() {
           if (signUpError.code === 'auth/email-already-in-use') {
             toast.error('Incorrect admin password. Please try again.');
           } else {
-            toast.error('Failed to initialize: ' + signUpError.message);
+            toast.error(getCleanErrorMessage(signUpError.code, signUpError.message));
           }
         }
       } else {
-        toast.error('Failed to log in: ' + error.message);
+        toast.error(getCleanErrorMessage(error.code, error.message));
       }
     } finally {
       setLoading(false);
@@ -93,7 +115,7 @@ export default function Login() {
                 />
               </div>
               <p className="text-[11px] text-neutral-500 mt-3 leading-relaxed">
-                💡 **पहला सेटअप**: यदि आप पहली बार लॉगिन कर रहे हैं, तो जो भी पासवर्ड आप यहाँ डालेंगे वही आपका स्थायी Admin Password बन जाएगा।
+                💡 **First-time Setup**: If logging in for the first time, whatever password you enter here will automatically become your permanent Admin Password.
               </p>
             </div>
             

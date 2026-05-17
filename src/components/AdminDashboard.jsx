@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     uploadTask.on('state_changed',
       (snapshot) => {},
       (error) => {
-        toast.error('Upload failed: ' + error.message);
+        toast.error('Failed to upload image. Please check your connection or file and try again.');
         setUploading(false);
       },
       async () => {
