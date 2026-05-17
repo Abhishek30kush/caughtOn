@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { collection, addDoc, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -7,22 +7,14 @@ import toast from 'react-hot-toast';
 import { ShoppingBag, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
 import Footer from './Footer';
 
-const defaultProduct = {
-  id: 'default_lower',
-  title: 'CaughtOn Signature Street Lower',
-  description: 'Unmatched freedom of movement meets ultimate street-ready aesthetics. Experience structural premium tailoring designed for your daily street aesthetic.',
-  price: 999,
-  originalPrice: 1499,
-  imageUrl: 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800',
-  sizes: ['S', 'M', 'L', 'XL']
-};
-
 export default function LandingPage() {
   const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState([defaultProduct]);
-  const [selectedProduct, setSelectedProduct] = useState(defaultProduct);
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [hasManuallySelected, setHasManuallySelected] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [slides, setSlides] = useState([]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -55,8 +47,8 @@ export default function LandingPage() {
           setFormData(prev => ({ ...prev, size: productsData[0].sizes[0] }));
         }
       } else {
-        setProducts([defaultProduct]);
-        setSelectedProduct(defaultProduct);
+        setProducts([]);
+        setSelectedProduct(null);
         setFormData(prev => ({ ...prev, size: 'M' }));
       }
     }, (error) => {
@@ -79,6 +71,47 @@ export default function LandingPage() {
 
     return unsubscribeHero;
   }, []);
+
+  // Build slides list whenever products or hero banner image updates
+  useEffect(() => {
+    const list = [];
+    
+    // 1. Add custom hero image if present
+    if (heroImageUrl) {
+      list.push({
+        url: heroImageUrl,
+        title: "EXCLUSIVELY CRAFTED DROPS",
+        subtitle: "Featured Drop Showcase"
+      });
+    }
+    
+    // 2. Add all dynamic product images
+    products.forEach((p) => {
+      if (p.imageUrl && !list.some(item => item.url === p.imageUrl)) {
+        list.push({
+          url: p.imageUrl,
+          title: p.title,
+          subtitle: "Featured Catalog Drop"
+        });
+      }
+    });
+
+    setSlides(list);
+    // Reset index if it gets out of bounds
+    setCurrentSlideIndex(prev => prev >= list.length ? 0 : prev);
+  }, [products, heroImageUrl]);
+
+  // Auto-rotation timer for slides
+  useEffect(() => {
+    if (hasManuallySelected) return;
+    if (slides.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlideIndex(prev => (prev + 1) % slides.length);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [slides, hasManuallySelected]);
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
@@ -207,21 +240,87 @@ export default function LandingPage() {
           className="relative animate-float"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/25 to-blue-500/25 blur-[100px] -z-10 rounded-full opacity-60"></div>
-          <div className="w-full aspect-[4/5] rounded-3xl overflow-hidden glass-effect border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shadow-cyan-950/20 hover:border-cyan-500/30 transition-all duration-500">
-            <img 
-              src={(!hasManuallySelected && heroImageUrl) ? heroImageUrl : selectedProduct.imageUrl} 
-              alt={selectedProduct.title} 
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
-            {/* Absolute label over cover */}
-            <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-neutral-950/80 backdrop-blur-md border border-white/5">
-              <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mb-1">
-                {(!hasManuallySelected && heroImageUrl) ? "Featured Drop Showcase" : "Featured Drop Selection"}
-              </span>
-              <h4 className="text-white font-bold text-base truncate">
-                {(!hasManuallySelected && heroImageUrl) ? "EXCLUSIVELY CRAFTED DROPS" : selectedProduct.title}
-              </h4>
+          <div className="w-full aspect-[4/5] rounded-3xl overflow-hidden glass-effect border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shadow-cyan-950/20 hover:border-cyan-500/30 transition-all duration-500 relative">
+            
+            {/* Slideshow image container with AnimatePresence */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden rounded-3xl bg-neutral-950 flex items-center justify-center">
+              {(hasManuallySelected && selectedProduct) || slides.length > 0 ? (
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={hasManuallySelected ? selectedProduct?.id : (slides[currentSlideIndex]?.url || 'default')}
+                    src={hasManuallySelected 
+                      ? selectedProduct?.imageUrl 
+                      : slides[currentSlideIndex]?.url
+                    } 
+                    alt={hasManuallySelected ? selectedProduct?.title : slides[currentSlideIndex]?.title} 
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                </AnimatePresence>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-500 gap-3 bg-neutral-900/40">
+                  <ShoppingBag className="w-10 h-10 text-cyan-500/30 animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Showcase Empty / Loading</span>
+                </div>
+              )}
             </div>
+
+            {/* Absolute label over cover */}
+            {((hasManuallySelected && selectedProduct) || slides.length > 0) && (
+              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-neutral-950/80 backdrop-blur-md border border-white/5 z-10">
+                <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mb-1">
+                  {hasManuallySelected 
+                    ? "Featured Drop Selection" 
+                    : (slides[currentSlideIndex]?.subtitle || "Featured Drop Showcase")
+                  }
+                </span>
+                <h4 className="text-white font-bold text-base truncate mb-2">
+                  {hasManuallySelected 
+                    ? selectedProduct?.title 
+                    : (slides[currentSlideIndex]?.title || "EXCLUSIVELY CRAFTED DROPS")
+                  }
+                </h4>
+
+                {/* Indicator dots for automatic slideshow */}
+                {!hasManuallySelected && slides.length > 1 && (
+                  <div className="flex gap-1.5 mt-2 justify-start">
+                    {slides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentSlideIndex(idx);
+                        }}
+                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          currentSlideIndex === idx 
+                            ? 'bg-cyan-400 w-5' 
+                            : 'bg-neutral-600 hover:bg-neutral-500 w-1.5'
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* If a product is manually selected, show a dynamic option to resume slideshow */}
+                {hasManuallySelected && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHasManuallySelected(false);
+                      setCurrentSlideIndex(0);
+                    }}
+                    className="mt-2 text-[10px] text-neutral-400 hover:text-cyan-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span>Resume Slideshow</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       </header>
@@ -236,82 +335,89 @@ export default function LandingPage() {
           <p className="text-neutral-400 max-w-md mx-auto text-sm">Pick your signature street aesthetic, choose sizes config, and checkout dynamically.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map(product => {
-            const isSelected = selectedProduct.id === product.id;
-            return (
-              <div 
-                key={product.id} 
-                className={`glass-effect rounded-3xl overflow-hidden flex flex-col justify-between group shadow-xl relative transition-all duration-500 border ${
-                  isSelected ? 'border-cyan-400/40 ring-1 ring-cyan-500/20' : 'border-white/5 hover:border-white/10'
-                }`}
-              >
-                {isSelected && (
-                  <div className="absolute top-4 left-4 px-3 py-1 bg-cyan-500 text-black text-[9px] font-black tracking-widest uppercase rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.4)] z-10">
-                    Active Choice
-                  </div>
-                )}
-                
-                <div className="aspect-[4/5] bg-neutral-900 overflow-hidden relative">
-                  <img 
-                    src={product.imageUrl} 
-                    alt={product.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent opacity-60"></div>
-                </div>
-
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <h4 className="font-extrabold text-xl text-white group-hover:text-cyan-400 transition-colors leading-tight">
-                      {product.title}
-                    </h4>
-                    <p className="text-neutral-400 text-xs font-medium leading-relaxed line-clamp-3">
-                      {product.description}
-                    </p>
+        {products.length === 0 ? (
+          <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
+            <ShoppingBag className="w-10 h-10 text-neutral-700 animate-pulse" />
+            <span className="text-xs uppercase tracking-wider font-bold text-neutral-500">Catalog drops currently empty</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map(product => {
+              const isSelected = selectedProduct?.id === product.id;
+              return (
+                <div 
+                  key={product.id} 
+                  className={`glass-effect rounded-3xl overflow-hidden flex flex-col justify-between group shadow-xl relative transition-all duration-500 border ${
+                    isSelected ? 'border-cyan-400/40 ring-1 ring-cyan-500/20' : 'border-white/5 hover:border-white/10'
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="absolute top-4 left-4 px-3 py-1 bg-cyan-500 text-black text-[9px] font-black tracking-widest uppercase rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.4)] z-10">
+                      Active Choice
+                    </div>
+                  )}
+                  
+                  <div className="aspect-[4/5] bg-neutral-900 overflow-hidden relative">
+                    <img 
+                      src={product.imageUrl} 
+                      alt={product.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent opacity-60"></div>
                   </div>
 
-                  <div className="space-y-4 pt-2">
-                    {/* Sizes available badges */}
-                    {product.sizes && product.sizes.length > 0 && (
-                      <div className="space-y-1.5">
-                        <span className="text-[9px] font-black text-neutral-500 uppercase tracking-widest block">Available Sizes</span>
-                        <div className="flex gap-1 flex-wrap">
-                          {product.sizes.map(size => (
-                            <span key={size} className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[9px] font-black text-neutral-300">
-                              {size}
-                            </span>
-                          ))}
+                  <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <h4 className="font-extrabold text-xl text-white group-hover:text-cyan-400 transition-colors leading-tight">
+                        {product.title}
+                      </h4>
+                      <p className="text-neutral-400 text-xs font-medium leading-relaxed line-clamp-3">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-4 pt-2">
+                      {/* Sizes available badges */}
+                      {product.sizes && product.sizes.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-black text-neutral-500 uppercase tracking-widest block">Available Sizes</span>
+                          <div className="flex gap-1 flex-wrap">
+                            {product.sizes.map(size => (
+                              <span key={size} className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[9px] font-black text-neutral-300">
+                                {size}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-2xl font-black text-white">₹{product.price}</span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-neutral-500 line-through">₹{product.originalPrice}</span>
-                        )}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl font-black text-white">₹{product.price}</span>
+                          {product.originalPrice && (
+                            <span className="text-sm text-neutral-500 line-through">₹{product.originalPrice}</span>
+                          )}
+                        </div>
+                        
+                        <button 
+                          onClick={() => handleProductSelect(product)}
+                          className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-extrabold text-xs tracking-wider transition-all duration-300 transform active:scale-95 cursor-pointer uppercase border ${
+                            isSelected 
+                              ? 'bg-white border-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]'
+                              : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white hover:border-cyan-500'
+                          }`}
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Order Now</span>
+                        </button>
                       </div>
-                      
-                      <button 
-                        onClick={() => handleProductSelect(product)}
-                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-extrabold text-xs tracking-wider transition-all duration-300 transform active:scale-95 cursor-pointer uppercase border ${
-                          isSelected 
-                            ? 'bg-white border-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]'
-                            : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white hover:border-cyan-500'
-                        }`}
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Order Now</span>
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Checkout Section */}
@@ -324,104 +430,113 @@ export default function LandingPage() {
             <p className="text-neutral-400 max-w-md mx-auto text-sm">Provide your street delivery credentials. COD checkout is fully secured with zero hidden costs.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="glass-effect p-6 sm:p-12 rounded-3xl border border-white/5 space-y-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
-            
-            {/* Size Selection */}
-            {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase mb-4">Select Drop Size Configuration</label>
-                <div className="flex flex-wrap gap-3">
-                  {selectedProduct.sizes.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setFormData({...formData, size: s})}
-                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-bold transition-all duration-300 border text-sm sm:text-base cursor-pointer ${
-                        formData.size === s 
-                          ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105 sm:scale-110' 
-                          : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Buyer Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
-                  placeholder="e.g. John Doe"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">WhatsApp / Phone Number</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
-                  placeholder="e.g. +91 98765 43210"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Complete Shipping Address</label>
-              <textarea
-                required
-                value={formData.address}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                rows="3"
-                className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm resize-none"
-                placeholder="House no, Street, City, State, Pincode"
-              />
-            </div>
-
-            {/* Beautiful Checkout Receipt */}
-            <div className="bg-neutral-950/60 rounded-2xl p-6 border border-white/5 space-y-4">
-              <div className="flex items-center gap-4">
-                <img 
-                  src={selectedProduct.imageUrl} 
-                  alt={selectedProduct.title} 
-                  className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0 bg-neutral-900" 
-                />
-                <div className="overflow-hidden">
-                  <h4 className="font-extrabold text-white text-sm leading-tight truncate">{selectedProduct.title}</h4>
-                  <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-wider mt-1.5">Size Selected: {formData.size}</p>
-                </div>
-              </div>
+          {selectedProduct ? (
+            <form onSubmit={handleSubmit} className="glass-effect p-6 sm:p-12 rounded-3xl border border-white/5 space-y-8 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
               
-              <div className="h-px bg-white/5"></div>
-              
-              <div className="flex justify-between items-center">
+              {/* Size Selection */}
+              {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-neutral-300 text-sm">Total Amount (COD)</h4>
-                  <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Free India-wide Delivery</p>
+                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase mb-4">Select Drop Size Configuration</label>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedProduct.sizes.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setFormData({...formData, size: s})}
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-bold transition-all duration-300 border text-sm sm:text-base cursor-pointer ${
+                          formData.size === s 
+                            ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105 sm:scale-110' 
+                            : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-3xl font-black text-white">₹{selectedProduct.price}</div>
-              </div>
-            </div>
+              )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl flex justify-center items-center space-x-2.5 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-70 cursor-pointer shadow-[0_8px_30px_rgba(6,182,212,0.25)] text-sm uppercase tracking-wider"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>{loading ? 'Processing Order...' : 'Place Order (COD)'}</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Buyer Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
+                    placeholder="e.g. John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">WhatsApp / Phone Number</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
+                    placeholder="e.g. +91 98765 43210"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Complete Shipping Address</label>
+                <textarea
+                  required
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  rows="3"
+                  className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm resize-none"
+                  placeholder="House no, Street, City, State, Pincode"
+                />
+              </div>
+
+              {/* Beautiful Checkout Receipt */}
+              <div className="bg-neutral-950/60 rounded-2xl p-6 border border-white/5 space-y-4">
+                <div className="flex items-center gap-4">
+                  {selectedProduct.imageUrl && (
+                    <img 
+                      src={selectedProduct.imageUrl} 
+                      alt={selectedProduct.title} 
+                      className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0 bg-neutral-900" 
+                    />
+                  )}
+                  <div className="overflow-hidden">
+                    <h4 className="font-extrabold text-white text-sm leading-tight truncate">{selectedProduct.title}</h4>
+                    <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-wider mt-1.5">Size Selected: {formData.size}</p>
+                  </div>
+                </div>
+                
+                <div className="h-px bg-white/5"></div>
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-semibold text-neutral-300 text-sm">Total Amount (COD)</h4>
+                    <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Free India-wide Delivery</p>
+                  </div>
+                  <div className="text-3xl font-black text-white">₹{selectedProduct.price}</div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl flex justify-center items-center space-x-2.5 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-70 cursor-pointer shadow-[0_8px_30px_rgba(6,182,212,0.25)] text-sm uppercase tracking-wider"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>{loading ? 'Processing Order...' : 'Place Order (COD)'}</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </form>
+          ) : (
+            <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium w-full flex flex-col items-center justify-center gap-3">
+              <ShoppingBag className="w-10 h-10 text-neutral-700 animate-pulse" />
+              <span className="text-xs uppercase tracking-wider font-bold text-neutral-500">Please select a catalog drop above to complete checkout</span>
+            </div>
+          )}
         </div>
       </section>
 
