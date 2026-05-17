@@ -34,29 +34,31 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters long.');
+    
+    // Strict default password check
+    if (password !== 'admin123') {
+      toast.error('Incorrect admin password. Please try again.');
       return;
     }
     
     setLoading(true);
     const adminEmail = 'admin@caughton.com';
+    const adminPassword = 'admin123'; // Hardcoded password
     
     try {
-      // 1. Try to sign in with the hardcoded admin email and entered password
-      await signInWithEmailAndPassword(auth, adminEmail, password);
+      // 1. Try to sign in with the hardcoded admin credentials
+      await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
       toast.success('Logged in successfully!');
       navigate('/admin');
     } catch (error) {
-      // 2. If it fails due to user not found (first-time setup)
+      // 2. If the user doesn't exist yet (first time initialization)
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         try {
-          // Attempt to register 'admin@caughton.com' with the entered password as the initial setup
-          await createUserWithEmailAndPassword(auth, adminEmail, password);
+          // Auto-register the admin user in their Firebase instance
+          await createUserWithEmailAndPassword(auth, adminEmail, adminPassword);
           toast.success('Admin account initialized and logged in successfully!');
           navigate('/admin');
         } catch (signUpError) {
-          // If the email is already in use, the sign-in error was actually an incorrect password!
           if (signUpError.code === 'auth/email-already-in-use') {
             toast.error('Incorrect admin password. Please try again.');
           } else {
@@ -114,9 +116,6 @@ export default function Login() {
                   placeholder="••••••••"
                 />
               </div>
-              <p className="text-[11px] text-neutral-500 mt-3 leading-relaxed">
-                💡 **First-time Setup**: If logging in for the first time, whatever password you enter here will automatically become your permanent Admin Password.
-              </p>
             </div>
             
             <button
