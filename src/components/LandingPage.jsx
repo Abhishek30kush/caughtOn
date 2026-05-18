@@ -368,7 +368,7 @@ export default function LandingPage() {
       </header>
 
       {/* Catalog Showroom Grid / Single Product Feature Showcase */}
-      <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-6 py-24 relative border-t border-white/5">
+      <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 relative border-t border-white/5">
         
         {products.length === 0 ? (
           <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
@@ -377,10 +377,10 @@ export default function LandingPage() {
           </div>
         ) : selectedProduct && layoutMode === 'showcase' ? (
           // PREMIUM SINGLE-PRODUCT VERTICAL SHOWCASE (IMAGE TOP, TEXT BELOW)
-          <div className="space-y-24">
+          <div className="space-y-16 sm:space-y-32">
             
             {/* Showcase Header */}
-            <div className="text-center mb-20 space-y-4">
+            <div className="text-center mb-12 sm:mb-20 space-y-4">
               <span className="px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                 Product Specifications
               </span>
@@ -393,7 +393,7 @@ export default function LandingPage() {
             </div>
 
             {/* Vertical Stack Feature Rows (Image top, text below) */}
-            <div className="space-y-24 max-w-4xl mx-auto">
+            <div className="space-y-16 sm:space-y-32 max-w-4xl mx-auto">
               {activeFeatures.map((feature, idx) => (
                 <motion.div 
                   key={idx}
@@ -401,7 +401,7 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="flex flex-col items-center space-y-8 pb-16 border-b border-white/5 last:border-b-0 last:pb-0"
+                  className="flex flex-col items-center space-y-6 sm:space-y-8 pb-12 sm:pb-20 border-b border-white/5 last:border-b-0 last:pb-0"
                 >
                   {/* Feature Image Wrapper */}
                   <div className="w-full group">
