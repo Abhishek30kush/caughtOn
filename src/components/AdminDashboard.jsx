@@ -677,50 +677,42 @@ export default function AdminDashboard() {
         {/* TAB 2: PRODUCTS CRUD */}
         {activeTab === 'products' && (
           <div className="space-y-6 w-full">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-extrabold flex items-center space-x-2 text-white">
-                <ImageIcon className="w-5 h-5 text-cyan-400" />
-                <span>Showcase Store Catalog</span>
-              </h2>
-              <button 
-                onClick={openAddProductModal}
-                className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-5 py-3 rounded-2xl transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_4px_15px_rgba(6,182,212,0.3)] text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Product</span>
-              </button>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-extrabold flex items-center space-x-2 text-white">
+                  <Package className="w-5 h-5 text-cyan-400" />
+                  <span>Flagship Drop Manager</span>
+                </h2>
+                <p className="text-neutral-400 text-xs mt-1 leading-relaxed">
+                  Manage the details, price, sizes, and multiple specification lookbook images of your flagship drop.
+                </p>
+              </div>
+              
+              {products.length === 0 ? (
+                <button 
+                  onClick={openAddProductModal}
+                  className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-5 py-3 rounded-2xl transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_4px_15px_rgba(6,182,212,0.3)] text-sm self-start sm:self-center"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Setup Flagship Drop</span>
+                </button>
+              ) : (
+                <div className="inline-flex items-center space-x-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest self-start sm:self-center">
+                  <CheckCircle className="w-4 h-4 text-cyan-400" />
+                  <span>Flagship Active</span>
+                </div>
+              )}
             </div>
 
-            {/* View Mode Configuration Toggle */}
-            <div className="glass-effect p-5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h3 className="text-sm font-bold text-white">Storefront Display Mode</h3>
-                <p className="text-neutral-400 text-xs mt-0.5">Choose how products are presented to visitors on the Landing Page.</p>
-              </div>
-              <div className="flex bg-neutral-950 p-1 rounded-xl border border-white/5 max-w-[320px]">
-                <button
-                  type="button"
-                  onClick={() => handleUpdateLayoutMode('showcase')}
-                  className={`flex-1 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                    layoutMode === 'showcase'
-                      ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.3)]'
-                      : 'text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  Specs Showcase
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleUpdateLayoutMode('grid')}
-                  className={`flex-1 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                    layoutMode === 'grid'
-                      ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.3)]'
-                      : 'text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  Standard Grid
-                </button>
-              </div>
+            {/* Single Product Store Management Info Alert */}
+            <div className="glass-effect p-5 rounded-2xl border border-cyan-500/10 bg-cyan-950/5/5 space-y-2">
+              <h3 className="text-xs font-extrabold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                Single-Product Store Mode Active
+              </h3>
+              <p className="text-neutral-400 text-xs leading-relaxed font-medium">
+                The storefront is optimized for your single flagship design drop. Visitors will directly see its details, cover photo, sizes config, and the **entire vertical lookbook specs list** (images and descriptions) stacked neatly on the main page. To launch a different drop, click **"Edit Product & Specs Details"** below, or delete this record to start fresh.
+              </p>
             </div>
 
             {productsLoading ? (
@@ -728,8 +720,9 @@ export default function AdminDashboard() {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
               </div>
             ) : products.length === 0 ? (
-              <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium">
-                Your products catalog is empty. Click "Add Product" to create your first dynamic trackpant drop!
+              <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium space-y-4 max-w-md mx-auto">
+                <Package className="w-10 h-10 text-neutral-600 mx-auto animate-pulse" />
+                <p className="text-xs leading-relaxed">No flagship product drop configured yet. Click "Setup Flagship Drop" above to launch your primary drop!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
