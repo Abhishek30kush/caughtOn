@@ -181,22 +181,7 @@ export default function LandingPage() {
     }
   };
 
-  const activeFeatures = selectedProduct?.features && selectedProduct.features.length > 0 
-    ? selectedProduct.features 
-    : [
-        {
-          imageUrl: "https://images.unsplash.com/photo-1551854838-212c50b4c184?auto=format&fit=crop&q=80&w=800",
-          text: "Signature 400GSM Heavyweight Drop Cotton"
-        },
-        {
-          imageUrl: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800",
-          text: "Hidden Heavy-Duty Utility Zipper Enclosure"
-        },
-        {
-          imageUrl: "https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800",
-          text: "Precision Tapered Fit with Comfort Ribbing"
-        }
-      ];
+  const activeFeatures = selectedProduct?.features || [];
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white grid-pattern selection:bg-cyan-500 selection:text-black">
@@ -392,65 +377,75 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Vertical Stack Feature Rows (Image top, text below) */}
-            <div className="space-y-16 sm:space-y-32 max-w-4xl mx-auto">
-              {activeFeatures.map((feature, idx) => (
-                <motion.div 
-                  key={idx}
-                  initial={{ opacity: 0, y: 60 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="flex flex-col items-center space-y-6 sm:space-y-8 pb-12 sm:pb-20 border-b border-white/5 last:border-b-0 last:pb-0"
-                >
-                  {/* Feature Image Wrapper */}
-                  <div className="w-full group">
-                    <div className="relative aspect-[4/3] sm:aspect-[16/9] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
-                      <img 
-                        src={feature.imageUrl} 
-                        alt={feature.text || `Detail showcase ${idx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/50 via-transparent to-transparent opacity-60"></div>
-                    </div>
-                  </div>
-
-                  {/* Feature Description Card Below Image */}
-                  <div className="w-full text-center space-y-4 max-w-2xl px-4">
-                    <div className="flex items-center justify-center gap-4">
-                      <div className="h-[1px] w-12 bg-gradient-to-l from-cyan-500/30 to-transparent"></div>
-                      <span className="text-3xl font-black text-neutral-800 bg-clip-text text-transparent bg-gradient-to-b from-cyan-400 to-cyan-600 tracking-tighter">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <div className="h-[1px] w-12 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+            {activeFeatures.length > 0 ? (
+              /* Vertical Stack Feature Rows (Image top, text below) */
+              <div className="space-y-16 sm:space-y-32 max-w-4xl mx-auto">
+                {activeFeatures.map((feature, idx) => (
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, y: 60 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="flex flex-col items-center space-y-6 sm:space-y-8 pb-12 sm:pb-20 border-b border-white/5 last:border-b-0 last:pb-0"
+                  >
+                    {/* Feature Image Wrapper */}
+                    <div className="w-full group">
+                      <div className="relative aspect-[4/3] sm:aspect-[16/9] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
+                        <img 
+                          src={feature.imageUrl} 
+                          alt={feature.text || `Detail showcase ${idx + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/50 via-transparent to-transparent opacity-60"></div>
+                      </div>
                     </div>
 
-                    <h4 className="text-xl sm:text-2xl font-black text-white leading-snug tracking-tight">
-                      {feature.text || "Premium Custom Finish Detail"}
-                    </h4>
-                    
-                    <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed font-medium">
-                      Every single structural line is precision-engineered for comfort and maximum aesthetic fit. Built with our signature street materials.
-                    </p>
+                    {/* Feature Description Card Below Image */}
+                    <div className="w-full text-center space-y-4 max-w-2xl px-4">
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="h-[1px] w-12 bg-gradient-to-l from-cyan-500/30 to-transparent"></div>
+                        <span className="text-3xl font-black text-neutral-800 bg-clip-text text-transparent bg-gradient-to-b from-cyan-400 to-cyan-600 tracking-tighter">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <div className="h-[1px] w-12 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                      </div>
 
-                    <div className="pt-2">
-                      <button
-                        onClick={() => {
-                          const checkoutSection = document.getElementById('checkout');
-                          if (checkoutSection) {
-                            checkoutSection.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }}
-                        className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
-                      >
-                        <span>Secure This Drop</span>
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                      </button>
+                      <h4 className="text-xl sm:text-2xl font-black text-white leading-snug tracking-tight">
+                        {feature.text || "Premium Custom Finish Detail"}
+                      </h4>
+                      
+                      <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed font-medium">
+                        Every single structural line is precision-engineered for comfort and maximum aesthetic fit. Built with our signature street materials.
+                      </p>
+
+                      <div className="pt-2">
+                        <button
+                          onClick={() => {
+                            const checkoutSection = document.getElementById('checkout');
+                            if (checkoutSection) {
+                              checkoutSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                          className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
+                        >
+                          <span>Secure This Drop</span>
+                          <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-effect p-8 sm:p-12 rounded-3xl border border-white/5 text-center text-neutral-400 max-w-md mx-auto space-y-4">
+                <ShoppingBag className="w-8 h-8 text-cyan-500/40 mx-auto animate-bounce" />
+                <h4 className="text-white font-extrabold text-xs uppercase tracking-widest">Lookbook Spec Details Under Construction</h4>
+                <p className="text-neutral-500 text-xs leading-relaxed font-medium">
+                  Go to your **Admin Dashboard**, click <strong className="text-cyan-400">"Edit Product & Specs Details"</strong> on this item, and add custom detail images & descriptions to showcase your product specs live!
+                </p>
+              </div>
+            )}
 
             {/* Other Products Grid (Shown only if there are multiple products in the database) */}
             {products.length > 1 && (

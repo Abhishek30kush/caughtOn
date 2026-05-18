@@ -787,6 +787,35 @@ export default function AdminDashboard() {
                             ))}
                           </div>
                         </div>
+
+                        {/* Showcase dynamic features preview inside Admin catalog card */}
+                        {product.features && product.features.length > 0 && (
+                          <div className="pt-2 border-t border-white/5">
+                            <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">Lookbook Specs ({product.features.length})</div>
+                            <div className="flex flex-col gap-1.5 max-h-[100px] overflow-y-auto pr-1">
+                              {product.features.map((feat, fIdx) => (
+                                <div key={fIdx} className="flex items-center gap-2 text-[10px] text-neutral-300 bg-white/5 rounded-lg p-1.5 border border-white/5">
+                                  {feat.imageUrl && (
+                                    <img src={feat.imageUrl} className="w-5 h-5 rounded object-cover shrink-0" alt="" />
+                                  )}
+                                  <span className="truncate flex-1">{feat.text || 'No description'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Explicit High-Visibility Edit Buttons */}
+                      <div className="pt-4 border-t border-white/5 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditProductModal(product)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 hover:text-cyan-300 text-xs font-bold border border-cyan-500/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit Product & Specs Details</span>
+                        </button>
                       </div>
                     </div>
                   </div>
