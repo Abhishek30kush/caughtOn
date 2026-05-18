@@ -403,23 +403,13 @@ export default function LandingPage() {
 
                     {/* Feature Description Card Below Image */}
                     <div className="w-full text-center space-y-4 max-w-2xl px-4">
-                      <div className="flex items-center justify-center gap-4">
-                        <div className="h-[1px] w-12 bg-gradient-to-l from-cyan-500/30 to-transparent"></div>
-                        <span className="text-3xl font-black text-neutral-800 bg-clip-text text-transparent bg-gradient-to-b from-cyan-400 to-cyan-600 tracking-tighter">
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <div className="h-[1px] w-12 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-                      </div>
+                      {feature.text && (
+                        <p className="text-neutral-200 text-sm sm:text-base leading-relaxed font-bold tracking-wide">
+                          {feature.text}
+                        </p>
+                      )}
 
-                      <h4 className="text-xl sm:text-2xl font-black text-white leading-snug tracking-tight">
-                        {feature.text || "Premium Custom Finish Detail"}
-                      </h4>
-                      
-                      <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed font-medium">
-                        Every single structural line is precision-engineered for comfort and maximum aesthetic fit. Built with our signature street materials.
-                      </p>
-
-                      <div className="pt-2">
+                      <div className="pt-1">
                         <button
                           onClick={() => {
                             const checkoutSection = document.getElementById('checkout');
