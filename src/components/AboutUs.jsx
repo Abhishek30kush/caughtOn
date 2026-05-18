@@ -1,8 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Sparkles, ShieldCheck, Heart, Zap } from 'lucide-react';
 import Footer from './Footer';
+import { db, DEFAULT_SETTINGS } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function AboutUs() {
+  const [storefrontSettings, setStorefrontSettings] = useState(DEFAULT_SETTINGS);
+
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'storefront');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setStorefrontSettings({
+          ...DEFAULT_SETTINGS,
+          ...data
+        });
+      }
+    }, (error) => {
+      console.error("Error loading storefront settings in about us:", error);
+    });
+    return unsubscribe;
+  }, []);
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white grid-pattern flex flex-col relative overflow-hidden">
       {/* Radial glows */}
@@ -28,26 +49,19 @@ export default function AboutUs() {
             <Sparkles className="w-8 h-8 text-cyan-400" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-            About <span className="text-white">caught</span><span className="gradient-text font-black">On</span>
+            {storefrontSettings.aboutTitle || "About caughtOn"}
           </h1>
-          <p className="text-neutral-400 text-lg">Engineering the perfect everyday wear for ultimate comfort and motion.</p>
+          <p className="text-neutral-400 text-lg">{storefrontSettings.aboutTagline}</p>
         </div>
 
         <div className="glass-effect p-6 sm:p-10 rounded-3xl border border-white/5 space-y-8 text-neutral-300 leading-relaxed text-base sm:text-lg relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 left-0 w-2.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
 
-          <p>
-            Welcome to <strong className="text-white font-bold">caughtOn</strong>. We are a premium apparel brand based in <span className="text-white font-semibold">Prayagraj, Uttar Pradesh</span>, born from a singular, obsessive mission: to create the perfect everyday trackpant.
-          </p>
-          <p>
-            Our journey started with a simple observation: finding a trackpant that perfectly balances comfort, durability, and a modern aesthetic is incredibly difficult. Most options out there either compromise on the fabric quality or fail to provide a tailored, stylish fit.
-          </p>
-          <p>
-            That's why we engineered our signature trackpants. We use premium, high-density, breathable fabrics designed for endless motion—whether you're hitting the gym, lounging at home, or navigating active city streets. Every stitch is carefully crafted to ensure longevity and ultimate comfort.
-          </p>
-          <p>
-            At caughtOn, we believe in keeping things simple. We focus on one core product and we make sure it's the absolute best one you'll ever wear. No distractions, just pure quality.
-          </p>
+          {(storefrontSettings.aboutParagraphs || []).map((para, index) => (
+            <p key={index} className="whitespace-pre-line">
+              {para}
+            </p>
+          ))}
           
           <div className="pt-8 mt-8 border-t border-white/5">
             <h3 className="text-xl font-extrabold text-white mb-6 flex items-center gap-2">

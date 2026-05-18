@@ -1,33 +1,61 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Shield, FileText, RotateCcw, Truck } from 'lucide-react';
 import Footer from './Footer';
+import { db, DEFAULT_SETTINGS } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
-const policies = {
-  privacy: {
-    title: "Privacy Policy",
-    icon: Shield,
-    content: `At caughtOn, we prioritize your privacy. We collect basic information like your name, phone number, and address strictly for fulfilling your orders. We do not sell or share your personal data with third-party marketing agencies. Your information is securely stored and only accessible by authorized personnel for delivery purposes.`
-  },
-  terms: {
-    title: "Terms & Conditions",
-    icon: FileText,
-    content: `By using the caughtOn website, you agree to our terms. All products and prices are subject to change without prior notice. We reserve the right to refuse service or cancel orders if fraudulent activity is suspected. The content, logo, and images on this site are the property of caughtOn and may not be used without permission.`
-  },
-  return: {
-    title: "Return & Exchange Policy",
-    icon: RotateCcw,
-    content: `We offer a 7-day return and exchange policy from the date of delivery. Items must be unused, unwashed, and in their original packaging with tags intact. If you received a defective item or the wrong size, please contact us immediately at coughton@gmail.com with photos of the product. Refunds (if applicable) will be processed once the returned item is inspected.`
-  },
-  shipping: {
-    title: "Shipping Policy",
-    icon: Truck,
-    content: `We ship all orders from our base in Prayagraj. Orders are typically processed within 24-48 hours. Delivery takes 3-7 business days depending on your location. We offer Cash on Delivery (COD) as our primary payment method for your convenience. Free delivery is available on all standard orders.`
-  }
+const policyIcons = {
+  privacy: Shield,
+  terms: FileText,
+  return: RotateCcw,
+  shipping: Truck
 };
 
 export default function PolicyPages() {
   const { type } = useParams();
-  const policy = policies[type] || { 
+  const [storefrontSettings, setStorefrontSettings] = useState(DEFAULT_SETTINGS);
+
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'storefront');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setStorefrontSettings({
+          ...DEFAULT_SETTINGS,
+          ...data
+        });
+      }
+    }, (error) => {
+      console.error("Error loading storefront settings in policies:", error);
+    });
+    return unsubscribe;
+  }, []);
+
+  const policiesData = {
+    privacy: {
+      title: "Privacy Policy",
+      icon: Shield,
+      content: storefrontSettings.policyPrivacy
+    },
+    terms: {
+      title: "Terms & Conditions",
+      icon: FileText,
+      content: storefrontSettings.policyTerms
+    },
+    return: {
+      title: "Return & Exchange Policy",
+      icon: RotateCcw,
+      content: storefrontSettings.policyReturn
+    },
+    shipping: {
+      title: "Shipping Policy",
+      icon: Truck,
+      content: storefrontSettings.policyShipping
+    }
+  };
+
+  const policy = policiesData[type] || { 
     title: "Policy Not Found", 
     icon: FileText, 
     content: "The policy you are looking for does not exist." 
@@ -62,7 +90,7 @@ export default function PolicyPages() {
             <div className="glass-effect p-6 rounded-3xl border border-white/5 shadow-xl">
               <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Legal Directory</h3>
               <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-2 pb-2 lg:pb-0 scrollbar-none">
-                {Object.entries(policies).map(([key, item]) => {
+                {Object.entries(policiesData).map(([key, item]) => {
                   const ItemIcon = item.icon;
                   const isActive = key === type;
                   return (
@@ -97,7 +125,7 @@ export default function PolicyPages() {
               </div>
 
               <div className="prose prose-invert max-w-none text-neutral-300 leading-relaxed text-base sm:text-lg">
-                {policy.content.split('\n').map((paragraph, index) => (
+                {(policy.content || '').split('\n').map((paragraph, index) => (
                   <p key={index} className="mb-6 font-medium text-neutral-400 leading-relaxed">{paragraph}</p>
                 ))}
               </div>

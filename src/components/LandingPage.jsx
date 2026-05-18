@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { collection, addDoc, onSnapshot, doc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, DEFAULT_SETTINGS } from '../firebase';
 import toast from 'react-hot-toast';
 import { ShoppingBag, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
 import Footer from './Footer';
@@ -17,7 +17,25 @@ export default function LandingPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([]);
   const [layoutMode, setLayoutMode] = useState('showcase');
-  
+  const [storefrontSettings, setStorefrontSettings] = useState(DEFAULT_SETTINGS);
+
+  // Listen to storefront customizer settings
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'storefront');
+    const unsubscribeStorefront = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setStorefrontSettings({
+          ...DEFAULT_SETTINGS,
+          ...data
+        });
+      }
+    }, (error) => {
+      console.error("Error loading storefront settings:", error);
+    });
+    return unsubscribeStorefront;
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -98,14 +116,14 @@ export default function LandingPage() {
       heroImages.forEach((url, index) => {
         list.push({
           url: url,
-          title: "EXCLUSIVELY CRAFTED DROPS",
+          title: storefrontSettings.heroBadge || "EXCLUSIVELY CRAFTED DROPS AVAILABLE",
           subtitle: `Featured Showcase Drop ${index + 1}`
         });
       });
     } else if (heroImageUrl) {
       list.push({
         url: heroImageUrl,
-        title: "EXCLUSIVELY CRAFTED DROPS",
+        title: storefrontSettings.heroBadge || "EXCLUSIVELY CRAFTED DROPS AVAILABLE",
         subtitle: "Featured Drop Showcase"
       });
     }
@@ -124,7 +142,7 @@ export default function LandingPage() {
     setSlides(list);
     // Reset index if it gets out of bounds
     setCurrentSlideIndex(prev => prev >= list.length ? 0 : prev);
-  }, [products, heroImageUrl, heroImages]);
+  }, [products, heroImageUrl, heroImages, storefrontSettings]);
 
   // Auto-rotation timer for slides
   useEffect(() => {
@@ -222,32 +240,34 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
             </span>
-            <span>EXCLUSIVELY CRAFTED DROPS AVAILABLE</span>
+            <span>{storefrontSettings.heroBadge}</span>
           </div>
           
-          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white">
-            Premium <br />
-            <span className="gradient-text">Everyday</span> <br />
-            Comfort Trackpants.
+          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white whitespace-pre-line">
+            {storefrontSettings.heroHeading}
           </h2>
           
-          <p className="text-base sm:text-lg text-neutral-400 max-w-md leading-relaxed">
-            Unmatched freedom of movement meets ultimate street-ready aesthetics. Experience structural premium tailoring designed for your daily street aesthetic.
+          <p className="text-base sm:text-lg text-neutral-400 max-w-md leading-relaxed whitespace-pre-line">
+            {storefrontSettings.heroSubheading}
           </p>
 
           <div className="flex space-x-6 pt-2">
-            <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
-              <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
-                <Truck className="w-4 h-4 text-cyan-400" />
+            {storefrontSettings.heroTrustBadge1 && (
+              <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
+                <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
+                  <Truck className="w-4 h-4 text-cyan-400" />
+                </div>
+                <span>{storefrontSettings.heroTrustBadge1}</span>
               </div>
-              <span>Free COD Delivery India</span>
-            </div>
-            <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
-              <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
-                <ShieldCheck className="w-4 h-4 text-cyan-400" />
+            )}
+            {storefrontSettings.heroTrustBadge2 && (
+              <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
+                <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
+                  <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                </div>
+                <span>{storefrontSettings.heroTrustBadge2}</span>
               </div>
-              <span>100% Street Premium Fabric</span>
-            </div>
+            )}
           </div>
 
           <button 
@@ -370,7 +390,7 @@ export default function LandingPage() {
                 Product Specifications
               </span>
               <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                Anatomy of Premium Comfort
+                {storefrontSettings.catalogTitle || "Anatomy of Premium Comfort"}
               </h3>
               <p className="text-neutral-400 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
                 Scroll through the custom-engineered premium craftsmanship of our <span className="text-white font-extrabold">{selectedProduct.title}</span>.

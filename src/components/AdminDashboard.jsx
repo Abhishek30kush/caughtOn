@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { db, storage, auth } from '../firebase';
+import { db, storage, auth, DEFAULT_SETTINGS } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { LogOut, Package, Image as ImageIcon, CheckCircle, Clock, Upload, ListFilter, ArrowLeft, RefreshCw, Plus, Edit2, Trash2, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { LogOut, Package, Image as ImageIcon, CheckCircle, Clock, Upload, ListFilter, ArrowLeft, RefreshCw, Plus, Edit2, Trash2, X, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'hero'
@@ -41,6 +41,45 @@ export default function AdminDashboard() {
   const [heroLoading, setHeroLoading] = useState(true);
   const [heroSaving, setHeroSaving] = useState(false);
   const [layoutMode, setLayoutMode] = useState('showcase');
+
+  // Storefront dynamic settings state
+  const [storefrontForm, setStorefrontForm] = useState(DEFAULT_SETTINGS);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+
+  // Listen to storefront settings
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'storefront');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setStorefrontForm(prev => ({
+          ...DEFAULT_SETTINGS,
+          ...data,
+          aboutParagraphs: Array.isArray(data.aboutParagraphs) ? data.aboutParagraphs : DEFAULT_SETTINGS.aboutParagraphs
+        }));
+      }
+      setSettingsLoading(false);
+    }, (error) => {
+      console.error("Error loading storefront settings:", error);
+      setSettingsLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleStorefrontSettingsSubmit = async (e) => {
+    e.preventDefault();
+    setSettingsSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'storefront'), storefrontForm);
+      toast.success('Storefront configuration published live successfully!');
+    } catch (err) {
+      console.error("Error saving storefront settings:", err);
+      toast.error('Failed to publish storefront configuration.');
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -549,6 +588,18 @@ export default function AdminDashboard() {
               <span>Hero Customizer</span>
             </button>
 
+            <button 
+              onClick={() => setActiveTab('settings')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+                activeTab === 'settings'
+                  ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              <span>Storefront Customizer</span>
+            </button>
+
             <Link to="/" className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Store</span>
@@ -574,12 +625,16 @@ export default function AdminDashboard() {
         <header className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight mb-1 text-white">
-              {activeTab === 'orders' ? 'Orders Dashboard' : 'Product Inventory'}
+              {activeTab === 'orders' ? 'Orders Dashboard' : activeTab === 'products' ? 'Product Inventory' : activeTab === 'hero' ? 'Hero Customizer' : 'Storefront Customizer'}
             </h1>
             <p className="text-neutral-400 text-sm font-medium">
               {activeTab === 'orders' 
                 ? 'Manage your customer orders, view incoming phone checkout forms, and update shipping logs.' 
-                : 'Add new trackpants products, set dynamic cross-out discounts, custom active sizes, and cover photos.'}
+                : activeTab === 'products'
+                ? 'Add new trackpants products, set dynamic cross-out discounts, custom active sizes, and cover photos.'
+                : activeTab === 'hero'
+                ? 'Manage the landing page hero slideshow cover images and standard storefront layout choices.'
+                : 'Modify and update any text field, contact info, social links, brand stories, or legal policies instantly.'}
             </p>
           </div>
           <div className="flex items-center space-x-3 bg-white/5 border border-white/5 px-4 py-2 rounded-2xl">
@@ -981,6 +1036,309 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: STOREFRONT CUSTOMIZER */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6 w-full max-w-5xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-extrabold flex items-center space-x-2 text-white">
+                  <Settings className="w-5 h-5 text-cyan-400" />
+                  <span>Storefront Customizer</span>
+                </h2>
+                <p className="text-neutral-400 text-xs mt-1 leading-relaxed">
+                  Modify the central contents of your storefront, About Us page, and legal policies instantly.
+                </p>
+              </div>
+            </div>
+
+            {settingsLoading ? (
+              <div className="glass-effect p-12 rounded-3xl border border-white/5 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
+              </div>
+            ) : (
+              <form onSubmit={handleStorefrontSettingsSubmit} className="space-y-8">
+                
+                {/* 1. HERO SECTION CONFIG */}
+                <div className="glass-effect p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+                  
+                  <div className="flex items-center space-x-3 mb-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <h3 className="text-sm font-extrabold text-white uppercase tracking-widest">Section 1: Hero Cover Settings</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Dynamic Hero Badge</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.heroBadge}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroBadge: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. EXCLUSIVELY CRAFTED DROPS AVAILABLE"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Heading Title</label>
+                      <textarea 
+                        value={storefrontForm.heroHeading}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroHeading: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[80px]"
+                        placeholder="e.g. Premium Everyday Comfort Trackpants."
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Subheading Tagline</label>
+                      <textarea 
+                        value={storefrontForm.heroSubheading}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroSubheading: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[80px]"
+                        placeholder="Hero paragraph text describing your apparel's comfort..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Trust Badge 1</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.heroTrustBadge1}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge1: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. Free COD Delivery India"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Trust Badge 2</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.heroTrustBadge2}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge2: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. 100% Street Premium Fabric"
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Catalog Specs Title</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.catalogTitle}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, catalogTitle: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. Anatomy of Premium Comfort"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. ABOUT US SECTION CONFIG */}
+                <div className="glass-effect p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+                  
+                  <div className="flex items-center space-x-3 mb-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <h3 className="text-sm font-extrabold text-white uppercase tracking-widest">Section 2: About Us Brand Story Settings</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">About Title</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.aboutTitle}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, aboutTitle: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. About caughtOn"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">About Tagline</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.aboutTagline}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, aboutTagline: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="Engineering the perfect everyday wear..."
+                      />
+                    </div>
+
+                    {(storefrontForm.aboutParagraphs || []).map((para, index) => (
+                      <div key={index} className="space-y-2 md:col-span-2">
+                        <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Story Paragraph {index + 1}</label>
+                        <textarea 
+                          value={para}
+                          onChange={(e) => {
+                            const updatedParas = [...(storefrontForm.aboutParagraphs || [])];
+                            updatedParas[index] = e.target.value;
+                            setStorefrontForm({...storefrontForm, aboutParagraphs: updatedParas});
+                          }}
+                          className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[90px]"
+                          placeholder={`Enter paragraph ${index + 1} of your brand story`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. CONTACT & SOCIALS */}
+                <div className="glass-effect p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+                  
+                  <div className="flex items-center space-x-3 mb-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <h3 className="text-sm font-extrabold text-white uppercase tracking-widest">Section 3: Footer Contact Details & Social Handles</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Support Phone Number</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.contactPhone}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, contactPhone: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. 7275977711"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Support Email Address</label>
+                      <input 
+                        type="email"
+                        value={storefrontForm.contactEmail}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, contactEmail: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. coughton@gmail.com"
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Physical Address / Shipping Base</label>
+                      <textarea 
+                        value={storefrontForm.contactAddress}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, contactAddress: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[60px]"
+                        placeholder="e.g. Prayagraj, Uttar Pradesh Pin - 211011"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Instagram Profile Link</label>
+                      <input 
+                        type="url"
+                        value={storefrontForm.socialInstagram}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, socialInstagram: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="https://instagram.com/..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Facebook Profile Link</label>
+                      <input 
+                        type="url"
+                        value={storefrontForm.socialFacebook}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, socialFacebook: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="https://facebook.com/..."
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Twitter Profile Link</label>
+                      <input 
+                        type="url"
+                        value={storefrontForm.socialTwitter}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, socialTwitter: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="https://twitter.com/..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. POLICY PAGES TEXTS */}
+                <div className="glass-effect p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+                  
+                  <div className="flex items-center space-x-3 mb-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <h3 className="text-sm font-extrabold text-white uppercase tracking-widest">Section 4: Corporate Policies & Legal Texts</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Privacy Policy Terms</label>
+                      <textarea 
+                        value={storefrontForm.policyPrivacy}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, policyPrivacy: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[120px] leading-relaxed"
+                        placeholder="Privacy policy content explaining standard data security..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Terms & Conditions of Service</label>
+                      <textarea 
+                        value={storefrontForm.policyTerms}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, policyTerms: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[120px] leading-relaxed"
+                        placeholder="Terms and conditions..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Return & Exchange Policy</label>
+                      <textarea 
+                        value={storefrontForm.policyReturn}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, policyReturn: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[120px] leading-relaxed"
+                        placeholder="Details of 7 days return terms..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Shipping & Delivery Logistics Policy</label>
+                      <textarea 
+                        value={storefrontForm.policyShipping}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, policyShipping: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[120px] leading-relaxed"
+                        placeholder="Logistics terms, processing timings, and COD methods..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submitting Control */}
+                <div className="pt-2 max-w-md mx-auto">
+                  <button
+                    type="submit"
+                    disabled={settingsSaving}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4.5 rounded-2xl transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-[0_6px_25px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 text-sm"
+                  >
+                    {settingsSaving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                        <span>Publishing Storefront Config...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Publish Storefront Changes Live</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </form>
             )}
           </div>
         )}
