@@ -167,6 +167,23 @@ export default function LandingPage() {
     }
   };
 
+  const activeFeatures = selectedProduct?.features && selectedProduct.features.length > 0 
+    ? selectedProduct.features 
+    : [
+        {
+          imageUrl: "https://images.unsplash.com/photo-1551854838-212c50b4c184?auto=format&fit=crop&q=80&w=800",
+          text: "Signature 400GSM Heavyweight Drop Cotton"
+        },
+        {
+          imageUrl: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800",
+          text: "Hidden Heavy-Duty Utility Zipper Enclosure"
+        },
+        {
+          imageUrl: "https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800",
+          text: "Precision Tapered Fit with Comfort Ribbing"
+        }
+      ];
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white grid-pattern selection:bg-cyan-500 selection:text-black">
       
@@ -344,7 +361,7 @@ export default function LandingPage() {
             <ShoppingBag className="w-10 h-10 text-neutral-700 animate-pulse" />
             <span className="text-xs uppercase tracking-wider font-bold text-neutral-500">Catalog drops currently empty</span>
           </div>
-        ) : selectedProduct?.features && selectedProduct.features.length > 0 ? (
+        ) : selectedProduct ? (
           // PREMIUM SINGLE-PRODUCT ALTERNATING VERTICAL SHOWCASE
           <div className="space-y-24">
             
@@ -363,7 +380,7 @@ export default function LandingPage() {
 
             {/* Alternating Feature Rows */}
             <div className="space-y-20 sm:space-y-32">
-              {selectedProduct.features.map((feature, idx) => {
+              {activeFeatures.map((feature, idx) => {
                 const isEven = idx % 2 === 0;
                 return (
                   <motion.div 
