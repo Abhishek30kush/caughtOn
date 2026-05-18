@@ -89,7 +89,7 @@ export default function PolicyPages() {
           <div className="lg:col-span-4 w-full">
             <div className="glass-effect p-6 rounded-3xl border border-white/5 shadow-xl">
               <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Legal Directory</h3>
-              <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-2 pb-2 lg:pb-0 scrollbar-none">
+              <div className="flex flex-wrap lg:flex-col gap-2">
                 {Object.entries(policiesData).map(([key, item]) => {
                   const ItemIcon = item.icon;
                   const isActive = key === type;
@@ -97,7 +97,7 @@ export default function PolicyPages() {
                     <Link
                       key={key}
                       to={`/policies/${key}`}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 whitespace-nowrap cursor-pointer ${
+                      className={`flex items-center space-x-2 sm:space-x-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap cursor-pointer flex-1 min-w-[140px] lg:min-w-0 justify-center lg:justify-start ${
                         isActive
                           ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border border-cyan-500/30'
                           : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'

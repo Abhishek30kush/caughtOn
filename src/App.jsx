@@ -26,7 +26,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
-          <Toaster position="bottom-right" toastOptions={{
+          <Toaster position="bottom-center" toastOptions={{
             style: {
               background: '#333',
               color: '#fff',

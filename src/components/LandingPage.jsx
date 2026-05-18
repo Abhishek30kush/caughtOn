@@ -206,28 +206,29 @@ export default function LandingPage() {
       
       {/* Sticky Premium Header */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-neutral-950/80 border-b border-white/5 w-full">
-        <div className="p-4 sm:p-6 flex justify-between items-center max-w-7xl mx-auto">
-          <Link to="/" className="text-xl sm:text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
+        <div className="p-3 sm:p-6 flex justify-between items-center max-w-7xl mx-auto">
+          <Link to="/" className="text-lg sm:text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
             <span className="text-white">caught</span>
             <span className="gradient-text font-black">On</span>
           </Link>
-          <div className="flex items-center space-x-4 sm:space-x-8">
-            <Link to="/track-order" className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-all hover:scale-105">
+          <div className="flex items-center space-x-3 sm:space-x-8">
+            <Link to="/track-order" className="text-[11px] sm:text-sm font-semibold text-neutral-400 hover:text-white transition-all hover:scale-105">
               Track Order
             </Link>
             <button 
               onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })} 
-              className="flex items-center space-x-2 px-4 sm:px-6 py-2 rounded-full bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all border border-cyan-500/20 text-xs sm:text-sm font-semibold hover:animate-none active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+              className="flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-2 rounded-full bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all border border-cyan-500/20 text-[11px] sm:text-sm font-semibold hover:animate-none active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
             >
               <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Shop Collection</span>
+              <span className="hidden sm:inline">Shop Collection</span>
+              <span className="inline sm:hidden">Shop</span>
             </button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 sm:pt-28 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Left: Product Info */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -373,7 +374,7 @@ export default function LandingPage() {
       </header>
 
       {/* Catalog Showroom Grid / Single Product Feature Showcase */}
-      <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 relative border-t border-white/5">
+      <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 relative border-t border-white/5">
         
         {products.length === 0 ? (
           <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
@@ -461,7 +462,7 @@ export default function LandingPage() {
       </section>
 
       {/* Checkout Section */}
-      <section id="checkout" className="bg-neutral-950 py-24 relative overflow-hidden border-t border-white/5">
+      <section id="checkout" className="scroll-mt-20 bg-neutral-950 py-24 relative overflow-hidden border-t border-white/5">
         <div className="max-w-3xl mx-auto px-6 relative">
           <div className="absolute -top-12 -left-12 w-64 h-64 radial-glow rounded-full opacity-50 -z-10 pointer-events-none"></div>
           

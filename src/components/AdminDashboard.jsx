@@ -5,10 +5,11 @@ import { db, storage, auth, DEFAULT_SETTINGS } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { LogOut, Package, Image as ImageIcon, CheckCircle, Clock, Upload, ListFilter, ArrowLeft, RefreshCw, Plus, Edit2, Trash2, X, ChevronUp, ChevronDown, Settings } from 'lucide-react';
+import { LogOut, Package, Image as ImageIcon, CheckCircle, Clock, Upload, ListFilter, ArrowLeft, RefreshCw, Plus, Edit2, Trash2, X, ChevronUp, ChevronDown, Settings, Menu } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'hero'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Orders states
   const [orders, setOrders] = useState([]);
@@ -538,11 +539,42 @@ export default function AdminDashboard() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 radial-glow rounded-full -z-10 pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 radial-glow rounded-full -z-10 pointer-events-none"></div>
 
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between p-4 bg-neutral-950/90 backdrop-blur-md border-b border-white/5 w-full">
+        <Link to="/" className="text-xl font-bold tracking-tighter">
+          <span className="text-white">caught</span>
+          <span className="gradient-text font-black">On</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-extrabold uppercase tracking-widest text-cyan-400">
+            Admin
+          </span>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-neutral-400 hover:text-white"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Sidebar Backdrop for Mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar / Left Column */}
-      <aside className="w-full lg:w-72 bg-neutral-950/80 backdrop-blur-md border-b lg:border-r border-white/5 p-6 flex flex-col justify-between relative z-20">
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-72 bg-neutral-950 border-r border-white/5 p-6 flex flex-col justify-between transition-transform duration-300
+        lg:relative lg:translate-x-0 lg:z-20 lg:bg-neutral-950/80 lg:backdrop-blur-md
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         <div>
           <div className="flex items-center justify-between mb-8">
-            <Link to="/" className="text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
+            <Link to="/" className="text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>
               <span className="text-white">caught</span>
               <span className="gradient-text font-black">On</span>
             </Link>
@@ -553,7 +585,7 @@ export default function AdminDashboard() {
 
           <nav className="space-y-2.5">
             <button 
-              onClick={() => setActiveTab('orders')}
+              onClick={() => { setActiveTab('orders'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'orders'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
@@ -565,7 +597,7 @@ export default function AdminDashboard() {
             </button>
 
             <button 
-              onClick={() => setActiveTab('products')}
+              onClick={() => { setActiveTab('products'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'products'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
@@ -577,7 +609,7 @@ export default function AdminDashboard() {
             </button>
 
             <button 
-              onClick={() => setActiveTab('hero')}
+              onClick={() => { setActiveTab('hero'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'hero'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
@@ -589,7 +621,7 @@ export default function AdminDashboard() {
             </button>
 
             <button 
-              onClick={() => setActiveTab('settings')}
+              onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'settings'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
@@ -600,7 +632,7 @@ export default function AdminDashboard() {
               <span>Storefront Customizer</span>
             </button>
 
-            <Link to="/" className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
+            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Store</span>
             </Link>
