@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const [heroUrlInput, setHeroUrlInput] = useState('');
   const [heroLoading, setHeroLoading] = useState(true);
   const [heroSaving, setHeroSaving] = useState(false);
+  const [layoutMode, setLayoutMode] = useState('showcase');
 
   const navigate = useNavigate();
 
@@ -109,6 +110,29 @@ export default function AdminDashboard() {
     });
     return unsubscribe;
   }, []);
+
+  // Listen to storefront display mode layout setting
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'layout');
+    const unsubscribeLayout = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setLayoutMode(docSnap.data().viewMode || 'showcase');
+      }
+    }, (error) => {
+      console.error("Error loading layout settings:", error);
+    });
+    return unsubscribeLayout;
+  }, []);
+
+  const handleUpdateLayoutMode = async (mode) => {
+    try {
+      await setDoc(doc(db, 'settings', 'layout'), { viewMode: mode }, { merge: true });
+      toast.success(`Display mode updated to ${mode === 'showcase' ? 'Specs Showcase' : 'Standard Grid'}!`);
+    } catch (err) {
+      console.error("Error updating layout:", err);
+      toast.error("Failed to update layout mode.");
+    }
+  };
 
   const handleMultipleHeroFilesChange = (e) => {
     const files = Array.from(e.target.files);
@@ -665,6 +689,38 @@ export default function AdminDashboard() {
                 <Plus className="w-4 h-4" />
                 <span>Add Product</span>
               </button>
+            </div>
+
+            {/* View Mode Configuration Toggle */}
+            <div className="glass-effect p-5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">Storefront Display Mode</h3>
+                <p className="text-neutral-400 text-xs mt-0.5">Choose how products are presented to visitors on the Landing Page.</p>
+              </div>
+              <div className="flex bg-neutral-950 p-1 rounded-xl border border-white/5 max-w-[320px]">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateLayoutMode('showcase')}
+                  className={`flex-1 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                    layoutMode === 'showcase'
+                      ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  Specs Showcase
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateLayoutMode('grid')}
+                  className={`flex-1 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                    layoutMode === 'grid'
+                      ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  Standard Grid
+                </button>
+              </div>
             </div>
 
             {productsLoading ? (

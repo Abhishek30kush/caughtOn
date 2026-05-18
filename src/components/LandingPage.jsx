@@ -16,6 +16,7 @@ export default function LandingPage() {
   const [hasManuallySelected, setHasManuallySelected] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([]);
+  const [layoutMode, setLayoutMode] = useState('showcase');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -73,6 +74,19 @@ export default function LandingPage() {
     });
 
     return unsubscribeHero;
+  }, []);
+
+  // Listen to storefront display mode layout setting
+  useEffect(() => {
+    const docRef = doc(db, 'settings', 'layout');
+    const unsubscribeLayout = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setLayoutMode(docSnap.data().viewMode || 'showcase');
+      }
+    }, (error) => {
+      console.error("Error loading layout settings:", error);
+    });
+    return unsubscribeLayout;
   }, []);
 
   // Build slides list whenever products or hero banner image updates
@@ -361,8 +375,8 @@ export default function LandingPage() {
             <ShoppingBag className="w-10 h-10 text-neutral-700 animate-pulse" />
             <span className="text-xs uppercase tracking-wider font-bold text-neutral-500">Catalog drops currently empty</span>
           </div>
-        ) : selectedProduct ? (
-          // PREMIUM SINGLE-PRODUCT ALTERNATING VERTICAL SHOWCASE
+        ) : selectedProduct && layoutMode === 'showcase' ? (
+          // PREMIUM SINGLE-PRODUCT VERTICAL SHOWCASE (IMAGE TOP, TEXT BELOW)
           <div className="space-y-24">
             
             {/* Showcase Header */}
@@ -378,68 +392,64 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Alternating Feature Rows */}
-            <div className="space-y-20 sm:space-y-32">
-              {activeFeatures.map((feature, idx) => {
-                const isEven = idx % 2 === 0;
-                return (
-                  <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 ${
-                      isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                    }`}
-                  >
-                    {/* Feature Image Wrapper */}
-                    <div className="w-full lg:w-1/2 group">
-                      <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
-                        <img 
-                          src={feature.imageUrl} 
-                          alt={feature.text || `Detail showcase ${idx + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/40 via-transparent to-transparent opacity-60"></div>
-                      </div>
+            {/* Vertical Stack Feature Rows (Image top, text below) */}
+            <div className="space-y-24 max-w-4xl mx-auto">
+              {activeFeatures.map((feature, idx) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, y: 60 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="flex flex-col items-center space-y-8 pb-16 border-b border-white/5 last:border-b-0 last:pb-0"
+                >
+                  {/* Feature Image Wrapper */}
+                  <div className="w-full group">
+                    <div className="relative aspect-[4/3] sm:aspect-[16/9] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
+                      <img 
+                        src={feature.imageUrl} 
+                        alt={feature.text || `Detail showcase ${idx + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/50 via-transparent to-transparent opacity-60"></div>
+                    </div>
+                  </div>
+
+                  {/* Feature Description Card Below Image */}
+                  <div className="w-full text-center space-y-4 max-w-2xl px-4">
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="h-[1px] w-12 bg-gradient-to-l from-cyan-500/30 to-transparent"></div>
+                      <span className="text-3xl font-black text-neutral-800 bg-clip-text text-transparent bg-gradient-to-b from-cyan-400 to-cyan-600 tracking-tighter">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <div className="h-[1px] w-12 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
                     </div>
 
-                    {/* Feature Description Card */}
-                    <div className="w-full lg:w-1/2 space-y-6">
-                      <div className="flex items-center gap-4">
-                        <span className="text-5xl sm:text-7xl font-black text-neutral-800 bg-clip-text text-transparent bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter">
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <div className="h-[2px] flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-                      </div>
+                    <h4 className="text-xl sm:text-2xl font-black text-white leading-snug tracking-tight">
+                      {feature.text || "Premium Custom Finish Detail"}
+                    </h4>
+                    
+                    <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed font-medium">
+                      Every single structural line is precision-engineered for comfort and maximum aesthetic fit. Built with our signature street materials.
+                    </p>
 
-                      <h4 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight max-w-md tracking-tight">
-                        {feature.text || "Premium Custom Finish Detail"}
-                      </h4>
-                      
-                      <p className="text-neutral-400 text-sm sm:text-base leading-relaxed max-w-lg font-medium">
-                        Every single structural line is precision-engineered for comfort and maximum aesthetic fit. Built with our signature street materials.
-                      </p>
-
-                      <div className="pt-2">
-                        <button
-                          onClick={() => {
-                            const checkoutSection = document.getElementById('checkout');
-                            if (checkoutSection) {
-                              checkoutSection.scrollIntoView({ behavior: 'smooth' });
-                            }
-                          }}
-                          className="inline-flex items-center space-x-2 text-xs font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
-                        >
-                          <span>Secure This Drop</span>
-                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </button>
-                      </div>
+                    <div className="pt-2">
+                      <button
+                        onClick={() => {
+                          const checkoutSection = document.getElementById('checkout');
+                          if (checkoutSection) {
+                            checkoutSection.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
+                      >
+                        <span>Secure This Drop</span>
+                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                      </button>
                     </div>
-                  </motion.div>
-                );
-              })}
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             {/* Other Products Grid (Shown only if there are multiple products in the database) */}
