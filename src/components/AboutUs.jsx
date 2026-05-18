@@ -37,13 +37,13 @@ export default function AboutUs() {
           <div className="absolute top-0 left-0 w-2.5 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
 
           <p>
-            Welcome to <strong className="text-white font-bold">caughtOn</strong>. We are a premium apparel brand based in <span className="text-white font-semibold">Prayagraj, Uttar Pradesh</span>, born from a singular, obsessive mission: to create the perfect everyday lower.
+            Welcome to <strong className="text-white font-bold">caughtOn</strong>. We are a premium apparel brand based in <span className="text-white font-semibold">Prayagraj, Uttar Pradesh</span>, born from a singular, obsessive mission: to create the perfect everyday trackpant.
           </p>
           <p>
-            Our journey started with a simple observation: finding a lower that perfectly balances comfort, durability, and a modern aesthetic is incredibly difficult. Most options out there either compromise on the fabric quality or fail to provide a tailored, stylish fit.
+            Our journey started with a simple observation: finding a trackpant that perfectly balances comfort, durability, and a modern aesthetic is incredibly difficult. Most options out there either compromise on the fabric quality or fail to provide a tailored, stylish fit.
           </p>
           <p>
-            That's why we engineered our signature lowers. We use premium, high-density, breathable fabrics designed for endless motion—whether you're hitting the gym, lounging at home, or navigating active city streets. Every stitch is carefully crafted to ensure longevity and ultimate comfort.
+            That's why we engineered our signature trackpants. We use premium, high-density, breathable fabrics designed for endless motion—whether you're hitting the gym, lounging at home, or navigating active city streets. Every stitch is carefully crafted to ensure longevity and ultimate comfort.
           </p>
           <p>
             At caughtOn, we believe in keeping things simple. We focus on one core product and we make sure it's the absolute best one you'll ever wear. No distractions, just pure quality.

@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold gradient-text">caughtOn</h2>
           <p className="text-neutral-400 text-sm leading-relaxed">
-            Premium everyday lowers designed for comfort and motion. 
+            Premium everyday trackpants designed for comfort and motion. 
             Upgrade your wardrobe with our latest drops.
           </p>
           <div className="flex space-x-4 pt-2">

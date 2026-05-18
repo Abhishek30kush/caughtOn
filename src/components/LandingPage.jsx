@@ -12,6 +12,7 @@ export default function LandingPage() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [heroImages, setHeroImages] = useState([]);
   const [hasManuallySelected, setHasManuallySelected] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([]);
@@ -63,7 +64,9 @@ export default function LandingPage() {
     const docRef = doc(db, 'settings', 'hero');
     const unsubscribeHero = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setHeroImageUrl(docSnap.data().imageUrl || '');
+        const data = docSnap.data();
+        setHeroImageUrl(data.imageUrl || '');
+        setHeroImages(data.images || (data.imageUrl ? [data.imageUrl] : []));
       }
     }, (err) => {
       console.error("Error loading hero banner:", err);
@@ -76,8 +79,16 @@ export default function LandingPage() {
   useEffect(() => {
     const list = [];
     
-    // 1. Add custom hero image if present
-    if (heroImageUrl) {
+    // 1. Add custom hero images if present
+    if (heroImages && heroImages.length > 0) {
+      heroImages.forEach((url, index) => {
+        list.push({
+          url: url,
+          title: "EXCLUSIVELY CRAFTED DROPS",
+          subtitle: `Featured Showcase Drop ${index + 1}`
+        });
+      });
+    } else if (heroImageUrl) {
       list.push({
         url: heroImageUrl,
         title: "EXCLUSIVELY CRAFTED DROPS",
@@ -99,7 +110,7 @@ export default function LandingPage() {
     setSlides(list);
     // Reset index if it gets out of bounds
     setCurrentSlideIndex(prev => prev >= list.length ? 0 : prev);
-  }, [products, heroImageUrl]);
+  }, [products, heroImageUrl, heroImages]);
 
   // Auto-rotation timer for slides
   useEffect(() => {
@@ -201,7 +212,7 @@ export default function LandingPage() {
           <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white">
             Premium <br />
             <span className="gradient-text">Everyday</span> <br />
-            Comfort Lowers.
+            Comfort Trackpants.
           </h2>
           
           <p className="text-base sm:text-lg text-neutral-400 max-w-md leading-relaxed">
