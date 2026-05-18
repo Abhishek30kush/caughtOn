@@ -31,7 +31,8 @@ export default function AdminDashboard() {
     price: '',
     originalPrice: '',
     sizes: ['S', 'M', 'L', 'XL'],
-    imageUrl: ''
+    imageUrl: '',
+    features: []
   });
 
   // Hero showcase settings states
@@ -250,7 +251,8 @@ export default function AdminDashboard() {
       price: '',
       originalPrice: '',
       sizes: ['S', 'M', 'L', 'XL'],
-      imageUrl: ''
+      imageUrl: '',
+      features: []
     });
     setProductFile(null);
     setImagePreview(null);
@@ -265,7 +267,13 @@ export default function AdminDashboard() {
       price: product.price || '',
       originalPrice: product.originalPrice || '',
       sizes: product.sizes || ['S', 'M', 'L', 'XL'],
-      imageUrl: product.imageUrl || ''
+      imageUrl: product.imageUrl || '',
+      features: product.features ? product.features.map(f => ({
+        file: null,
+        previewUrl: f.imageUrl || '',
+        text: f.text || '',
+        imageUrl: f.imageUrl || ''
+      })) : []
     });
     setProductFile(null);
     setImagePreview(product.imageUrl || null);
@@ -299,6 +307,56 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddFeature = () => {
+    setProductForm(prev => ({
+      ...prev,
+      features: [...prev.features, { file: null, previewUrl: '', text: '', imageUrl: '' }]
+    }));
+  };
+
+  const handleRemoveFeature = (index) => {
+    const updatedFeatures = [...productForm.features];
+    const removed = updatedFeatures.splice(index, 1)[0];
+    if (removed.previewUrl && removed.previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(removed.previewUrl);
+    }
+    setProductForm(prev => ({
+      ...prev,
+      features: updatedFeatures
+    }));
+  };
+
+  const handleFeatureFileChange = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const updatedFeatures = [...productForm.features];
+      if (updatedFeatures[index].previewUrl && updatedFeatures[index].previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(updatedFeatures[index].previewUrl);
+      }
+      updatedFeatures[index] = {
+        ...updatedFeatures[index],
+        file,
+        previewUrl: URL.createObjectURL(file)
+      };
+      setProductForm(prev => ({
+        ...prev,
+        features: updatedFeatures
+      }));
+    }
+  };
+
+  const handleFeatureTextChange = (index, value) => {
+    const updatedFeatures = [...productForm.features];
+    updatedFeatures[index] = {
+      ...updatedFeatures[index],
+      text: value
+    };
+    setProductForm(prev => ({
+      ...prev,
+      features: updatedFeatures
+    }));
+  };
+
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     if (!productForm.title || !productForm.price) {
@@ -329,7 +387,45 @@ export default function AdminDashboard() {
         });
       }
 
-      // 2. Prepare payload
+      // 2. Upload all feature files if selected
+      const uploadedFeatures = [];
+      for (let i = 0; i < productForm.features.length; i++) {
+        const feature = productForm.features[i];
+        if (feature.file) {
+          toast.loading(`Uploading detail image ${i + 1} of ${productForm.features.length}...`, { id: 'feature-upload' });
+          const uploadUrl = await new Promise((resolve, reject) => {
+            const storageRef = ref(storage, `features/detail_${Date.now()}_${i}`);
+            const uploadTask = uploadBytesResumable(storageRef, feature.file);
+            
+            uploadTask.on('state_changed',
+              null,
+              (error) => {
+                toast.error(`Detail image ${i + 1} upload failed`);
+                reject(error);
+              },
+              async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(downloadURL);
+              }
+            );
+          });
+          uploadedFeatures.push({
+            imageUrl: uploadUrl,
+            text: feature.text || ''
+          });
+          if (feature.previewUrl && feature.previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(feature.previewUrl);
+          }
+        } else {
+          uploadedFeatures.push({
+            imageUrl: feature.imageUrl || '',
+            text: feature.text || ''
+          });
+        }
+      }
+      toast.dismiss('feature-upload');
+
+      // 3. Prepare payload
       const productPayload = {
         title: productForm.title,
         description: productForm.description,
@@ -337,11 +433,12 @@ export default function AdminDashboard() {
         originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : null,
         sizes: productForm.sizes,
         imageUrl: finalImageUrl || 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800',
+        features: uploadedFeatures,
         updatedAt: new Date(),
         createdAt: editingProduct ? (editingProduct.createdAt || new Date()) : new Date()
       };
 
-      // 3. Save to database
+      // 4. Save to database
       if (editingProduct) {
         await setDoc(doc(db, 'products', editingProduct.id), productPayload, { merge: true });
         toast.success('Product updated successfully!');
@@ -355,6 +452,7 @@ export default function AdminDashboard() {
       console.error("Save product error:", error);
       toast.error('Failed to save product catalog record.');
     } finally {
+      toast.dismiss('feature-upload');
       setUploading(false);
     }
   };
@@ -829,7 +927,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleProductSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleProductSubmit} className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               
               <div>
                 <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Trackpant Title *</label>
@@ -899,6 +997,70 @@ export default function AdminDashboard() {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Product Details Showcase List */}
+              <div className="space-y-4 border-t border-white/5 pt-4">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest">Product Feature Details</label>
+                  <button
+                    type="button"
+                    onClick={handleAddFeature}
+                    className="flex items-center space-x-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-bold cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Image Detail</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {productForm.features && productForm.features.map((feature, index) => (
+                    <div key={index} className="bg-neutral-950/60 p-4 rounded-2xl border border-white/5 space-y-3 relative">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFeature(index)}
+                        className="absolute top-2.5 right-2.5 text-neutral-500 hover:text-red-400 p-1 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="space-y-2">
+                          <span className="text-[10px] text-neutral-500 font-black uppercase tracking-wider block">Detail Image {index + 1}</span>
+                          <div className="flex items-center gap-3">
+                            {feature.previewUrl && (
+                              <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-neutral-900">
+                                <img src={feature.previewUrl} alt="Feature" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <div className="border border-dashed border-white/10 hover:border-cyan-500/40 rounded-xl p-3 flex-1 text-center relative bg-neutral-950/30 transition-all cursor-pointer">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFeatureFileChange(index, e)}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                              />
+                              <span className="text-xs font-bold text-neutral-300">
+                                {feature.file || feature.imageUrl ? 'Change Image' : 'Choose Image'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <span className="text-[10px] text-neutral-500 font-black uppercase tracking-wider block">Feature Property Description</span>
+                          <input
+                            type="text"
+                            value={feature.text}
+                            onChange={(e) => handleFeatureTextChange(index, e.target.value)}
+                            className="w-full bg-neutral-950 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-neutral-700 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                            placeholder="e.g. Premium Loops / 100% Street Premium Fabric"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
