@@ -436,69 +436,6 @@ export default function LandingPage() {
                 </p>
               </div>
             )}
-
-            {/* Other Products Grid (Shown only if there are multiple products in the database) */}
-            {products.length > 1 && (
-              <div className="pt-20 border-t border-white/5 space-y-12">
-                <div className="text-center space-y-3">
-                  <h4 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Other Active Catalog Drops</h4>
-                  <p className="text-neutral-400 max-w-md mx-auto text-xs sm:text-sm">Click to select and view the detailed anatomy of our other street designs.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {products.map(product => {
-                    const isSelected = selectedProduct?.id === product.id;
-                    return (
-                      <div 
-                        key={product.id} 
-                        onClick={() => handleProductSelect(product)}
-                        className={`glass-effect rounded-3xl overflow-hidden flex flex-col justify-between group shadow-xl relative transition-all duration-500 border cursor-pointer hover:scale-[1.02] ${
-                          isSelected ? 'border-cyan-400/40 ring-1 ring-cyan-500/20' : 'border-white/5 hover:border-white/10'
-                        }`}
-                      >
-                        {isSelected && (
-                          <div className="absolute top-4 left-4 px-3 py-1 bg-cyan-500 text-black text-[9px] font-black tracking-widest uppercase rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.4)] z-10">
-                            Active Showcase
-                          </div>
-                        )}
-                        
-                        <div className="aspect-[4/5] bg-neutral-900 overflow-hidden relative">
-                          <img 
-                            src={product.imageUrl} 
-                            alt={product.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent opacity-60"></div>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-extrabold text-lg text-white group-hover:text-cyan-400 transition-colors leading-tight truncate">
-                              {product.title}
-                            </h4>
-                            <p className="text-neutral-400 text-xs font-medium leading-relaxed line-clamp-2">
-                              {product.description}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-1">
-                            <div className="flex items-baseline space-x-2">
-                              <span className="text-xl font-black text-white">₹{product.price}</span>
-                              {product.originalPrice && (
-                                <span className="text-xs text-neutral-500 line-through">₹{product.originalPrice}</span>
-                              )}
-                            </div>
-                            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-wider group-hover:translate-x-1.5 transition-transform flex items-center gap-1">
-                              View Anatomy <ChevronRight className="w-3 h-3" />
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         ) : (
           // STANDARD DYNAMIC CATALOG GRID (FALLBACK FOR MULTIPLE PRODUCTS WITHOUT DETAILED FEATURES)
