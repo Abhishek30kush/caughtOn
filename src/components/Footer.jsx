@@ -117,6 +117,9 @@ export default function Footer() {
         <p className="text-neutral-600 text-sm">
           © {new Date().getFullYear()} caughtOn. All rights reserved.
         </p>
+        <p className="text-neutral-500 text-sm font-semibold tracking-wide">
+          Designed & Developed by <span className="text-cyan-400">curos</span>
+        </p>
       </div>
     </footer>
   );
