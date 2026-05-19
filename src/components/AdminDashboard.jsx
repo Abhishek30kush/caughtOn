@@ -1152,7 +1152,7 @@ export default function AdminDashboard() {
                         value={storefrontForm.heroTrustBadge1}
                         onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge1: e.target.value})}
                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
-                        placeholder="e.g. Free COD Delivery India"
+                        placeholder="e.g. COD Available"
                       />
                     </div>
 
@@ -1163,7 +1163,7 @@ export default function AdminDashboard() {
                         value={storefrontForm.heroTrustBadge2}
                         onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge2: e.target.value})}
                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
-                        placeholder="e.g. 100% Street Premium Fabric"
+                        placeholder="e.g. premium lycra fabric"
                       />
                     </div>
 
@@ -1174,7 +1174,7 @@ export default function AdminDashboard() {
                         value={storefrontForm.heroTrustBadge3 || ''}
                         onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge3: e.target.value})}
                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
-                        placeholder="e.g. 7-Day Easy Returns"
+                        placeholder="e.g. free delivery"
                       />
                     </div>
 

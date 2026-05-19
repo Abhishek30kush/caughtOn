@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { collection, addDoc, onSnapshot, doc } from 'firebase/firestore';
 import { db, DEFAULT_SETTINGS } from '../firebase';
 import toast from 'react-hot-toast';
-import { ShoppingBag, ShieldCheck, Truck, ChevronRight, RotateCcw, Sparkles } from 'lucide-react';
+import { ShoppingBag, ShieldCheck, Truck, ChevronRight, RotateCcw, Sparkles, Banknote } from 'lucide-react';
 import Footer from './Footer';
 
 export default function LandingPage() {
@@ -294,7 +294,7 @@ export default function LandingPage() {
             {storefrontSettings.heroTrustBadge1 && (
               <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
                 <div className="p-1.5 rounded-lg bg-white/5 border border-white/10 shrink-0">
-                  <Truck className="w-4 h-4 text-cyan-400" />
+                  <Banknote className="w-4 h-4 text-cyan-400" />
                 </div>
                 <span className="leading-tight">{storefrontSettings.heroTrustBadge1}</span>
               </div>
@@ -310,7 +310,7 @@ export default function LandingPage() {
             {storefrontSettings.heroTrustBadge3 && (
               <div className="flex items-center space-x-2.5 text-neutral-300 text-sm font-medium">
                 <div className="p-1.5 rounded-lg bg-white/5 border border-white/10 shrink-0">
-                  <RotateCcw className="w-4 h-4 text-cyan-400" />
+                  <Truck className="w-4 h-4 text-cyan-400" />
                 </div>
                 <span className="leading-tight">{storefrontSettings.heroTrustBadge3}</span>
               </div>
