@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { collection, addDoc, onSnapshot, doc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db, DEFAULT_SETTINGS } from '../firebase';
 import toast from 'react-hot-toast';
 import { ShoppingBag, ShieldCheck, Truck, ChevronRight, RotateCcw, Sparkles, Banknote } from 'lucide-react';
@@ -89,11 +89,18 @@ export default function LandingPage() {
 
         setProducts(productsData);
         
-        // Auto-select the first product by default
-        setSelectedProduct(productsData[0]);
-        if (productsData[0].sizes && productsData[0].sizes.length > 0) {
-          setFormData(prev => ({ ...prev, size: productsData[0].sizes[0] }));
-        }
+        // Auto-select or sync selectedProduct with the updated one from snapshot
+        setSelectedProduct(prevSelected => {
+          if (prevSelected) {
+            const updated = productsData.find(p => p.id === prevSelected.id);
+            if (updated) return updated;
+          }
+          const defaultProduct = productsData[0] || null;
+          if (defaultProduct && defaultProduct.sizes && defaultProduct.sizes.length > 0) {
+            setFormData(prev => ({ ...prev, size: defaultProduct.sizes[0] }));
+          }
+          return defaultProduct;
+        });
       } else {
         setProducts([]);
         setSelectedProduct(null);
@@ -205,6 +212,20 @@ export default function LandingPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Stock Validation Check
+      if (selectedProduct.stock !== undefined) {
+        if (selectedProduct.stock <= 0) {
+          toast.error('Sorry, this product is currently out of stock!');
+          setLoading(false);
+          return;
+        }
+        if (selectedProduct.stock < quantity) {
+          toast.error(`Sorry, only ${selectedProduct.stock} items left in stock!`);
+          setLoading(false);
+          return;
+        }
+      }
+
       await addDoc(collection(db, "orders"), {
         name: formData.name,
         phone: formData.phone,
@@ -218,6 +239,14 @@ export default function LandingPage() {
         createdAt: new Date(),
         total: selectedProduct.price * quantity
       });
+
+      // Automatically decrement stock level in Firestore
+      if (selectedProduct.stock !== undefined) {
+        const productRef = doc(db, "products", selectedProduct.id);
+        await updateDoc(productRef, {
+          stock: Math.max(0, selectedProduct.stock - quantity)
+        });
+      }
       
       toast.success('Order placed successfully! We will contact you soon.');
       setFormData({ name: '', phone: '', address: '', size: selectedProduct.sizes?.[0] || 'M' });
@@ -271,7 +300,7 @@ export default function LandingPage() {
             {storefrontSettings.heroHeading}
           </h2>
           {/* Dynamic Price Display Boxes */}
-          <div className="flex flex-row items-center gap-4 pt-1.5 pb-2">
+          <div className="flex flex-wrap items-center gap-4 pt-1.5 pb-2">
             {/* Offer Price Box */}
             <div className="glass-effect border border-emerald-500/30 bg-emerald-950/10 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.15)]">
               <div className="absolute top-0 right-0 w-8 h-8 bg-emerald-500/10 rounded-full blur-md"></div>
@@ -288,6 +317,26 @@ export default function LandingPage() {
                 ₹{selectedProduct?.originalPrice || 1499}
               </span>
             </div>
+
+            {/* Stock status badge */}
+            {selectedProduct?.stock !== undefined && selectedProduct.stock <= 0 && (
+              <div className="glass-effect border border-rose-500/30 bg-rose-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(244,63,94,0.15)]">
+                <div className="absolute top-0 right-0 w-8 h-8 bg-rose-500/10 rounded-full blur-md"></div>
+                <span className="text-[10px] font-black tracking-widest text-rose-400 uppercase leading-none mb-1.5">AVAILABILITY</span>
+                <span className="text-lg sm:text-xl font-black text-rose-500 leading-none">
+                  OUT OF STOCK
+                </span>
+              </div>
+            )}
+            {selectedProduct?.stock !== undefined && selectedProduct.stock > 0 && selectedProduct.stock <= 5 && (
+              <div className="glass-effect border border-amber-500/30 bg-amber-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse">
+                <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/10 rounded-full blur-md"></div>
+                <span className="text-[10px] font-black tracking-widest text-amber-400 uppercase leading-none mb-1.5">STOCK LEVEL</span>
+                <span className="text-lg sm:text-xl font-black text-amber-500 leading-none">
+                  ONLY {selectedProduct.stock} LEFT!
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-3 pt-2">
@@ -503,7 +552,13 @@ export default function LandingPage() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => setQuantity(q => q + 1)}
+                        onClick={() => setQuantity(q => {
+                          if (selectedProduct.stock !== undefined && q >= selectedProduct.stock) {
+                            toast.error(`Only ${selectedProduct.stock} items available in stock.`);
+                            return q;
+                          }
+                          return q + 1;
+                        })}
                         className="w-11 h-11 flex items-center justify-center text-neutral-400 hover:text-white transition-colors hover:bg-white/5 font-extrabold text-xl cursor-pointer"
                       >
                         +
@@ -659,12 +714,24 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl flex justify-center items-center space-x-2.5 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-70 cursor-pointer shadow-[0_8px_30px_rgba(6,182,212,0.25)] text-sm uppercase tracking-wider"
+                disabled={loading || (selectedProduct.stock !== undefined && selectedProduct.stock <= 0)}
+                className={`w-full group font-bold py-4 rounded-xl flex justify-center items-center space-x-2.5 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 text-sm uppercase tracking-wider ${
+                  (selectedProduct.stock !== undefined && selectedProduct.stock <= 0)
+                    ? 'bg-rose-950/40 border border-rose-900/30 text-rose-500 cursor-not-allowed shadow-none'
+                    : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white cursor-pointer shadow-[0_8px_30px_rgba(6,182,212,0.25)]'
+                }`}
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{loading ? 'Processing Order...' : 'Place Order (COD)'}</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span>
+                  {loading 
+                    ? 'Processing Order...' 
+                    : (selectedProduct.stock !== undefined && selectedProduct.stock <= 0) 
+                      ? 'Out of Stock' 
+                      : 'Place Order (COD)'}
+                </span>
+                {!(selectedProduct.stock !== undefined && selectedProduct.stock <= 0) && (
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                )}
               </button>
             </form>
           ) : (
@@ -690,11 +757,19 @@ export default function LandingPage() {
           >
             <button
               onClick={() => document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' })}
-              className="group w-full flex items-center justify-center space-x-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 px-6 rounded-full transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_12px_35px_rgba(6,182,212,0.45)] border border-cyan-400/20 text-xs sm:text-sm uppercase tracking-widest text-center"
+              className={`group w-full flex items-center justify-center space-x-2.5 font-black py-4 px-6 rounded-full transition-all duration-300 transform active:scale-95 cursor-pointer text-xs sm:text-sm uppercase tracking-widest text-center ${
+                (selectedProduct?.stock !== undefined && selectedProduct.stock <= 0)
+                  ? 'bg-rose-950 border border-rose-500/30 text-rose-400 shadow-[0_12px_35px_rgba(244,63,94,0.3)]'
+                  : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_12px_35px_rgba(6,182,212,0.45)] border border-cyan-400/20'
+              }`}
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Order Now</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>
+                {(selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) ? 'Out of Stock' : 'Order Now'}
+              </span>
+              {!(selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) && (
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              )}
             </button>
           </motion.div>
         )}

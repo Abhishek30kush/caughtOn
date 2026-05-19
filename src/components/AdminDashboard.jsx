@@ -32,6 +32,7 @@ export default function AdminDashboard() {
     price: '',
     originalPrice: '',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    stock: '',
     imageUrl: '',
     features: []
   });
@@ -315,6 +316,7 @@ export default function AdminDashboard() {
       price: '',
       originalPrice: '',
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      stock: '',
       imageUrl: '',
       features: []
     });
@@ -331,6 +333,7 @@ export default function AdminDashboard() {
       price: product.price || '',
       originalPrice: product.originalPrice || '',
       sizes: product.sizes || ['S', 'M', 'L', 'XL', 'XXL'],
+      stock: product.stock !== undefined ? String(product.stock) : '',
       imageUrl: product.imageUrl || '',
       features: product.features ? product.features.map(f => ({
         file: null,
@@ -496,6 +499,7 @@ export default function AdminDashboard() {
         price: Number(productForm.price),
         originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : null,
         sizes: productForm.sizes,
+        stock: productForm.stock !== '' ? Number(productForm.stock) : 0,
         imageUrl: finalImageUrl || 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800',
         features: uploadedFeatures,
         updatedAt: new Date(),
@@ -860,11 +864,27 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="space-y-3 pt-2">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="text-2xl font-black text-white">₹{product.price}</span>
-                          {product.originalPrice && (
-                            <span className="text-sm text-neutral-500 line-through">₹{product.originalPrice}</span>
-                          )}
+                        <div className="flex justify-between items-center gap-2">
+                          <div className="flex items-baseline space-x-2">
+                            <span className="text-2xl font-black text-white">₹{product.price}</span>
+                            {product.originalPrice && (
+                              <span className="text-sm text-neutral-500 line-through">₹{product.originalPrice}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-1.5 shrink-0 bg-neutral-950 px-2.5 py-1 rounded-xl border border-white/5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${(product.stock === undefined || product.stock > 0) ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+                            <span className={`text-[9px] font-black uppercase tracking-wider ${
+                              (product.stock === undefined || product.stock > 5) 
+                                ? 'text-neutral-400' 
+                                : (product.stock > 0) ? 'text-amber-400 font-extrabold' : 'text-rose-500 font-extrabold'
+                            }`}>
+                              {product.stock === undefined 
+                                ? 'Unlimited' 
+                                : product.stock > 0 
+                                  ? `${product.stock} items` 
+                                  : 'Out of Stock'}
+                            </span>
+                          </div>
                         </div>
 
                         <div>
@@ -1452,7 +1472,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Price (₹) *</label>
                   <input 
@@ -1472,6 +1492,17 @@ export default function AdminDashboard() {
                     onChange={(e) => setProductForm({...productForm, originalPrice: e.target.value})}
                     className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
                     placeholder="1499"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Stock Quantity *</label>
+                  <input 
+                    type="number" 
+                    required
+                    value={productForm.stock}
+                    onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
+                    placeholder="e.g. 50"
                   />
                 </div>
               </div>
