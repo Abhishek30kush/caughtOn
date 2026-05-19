@@ -46,7 +46,7 @@ export const storage = storageInstance;
 
 export const DEFAULT_SETTINGS = {
   heroBadge: "EXCLUSIVELY CRAFTED DROPS AVAILABLE",
-  heroHeading: "Premium Lycra Everyday Comfort Track Pants.",
+  heroHeading: "Premium Lycra Everyday Comfort Track Pants",
   heroSubheading: "Unmatched freedom of movement meets ultimate street-ready aesthetics. Experience structural premium tailoring designed for your daily street aesthetic.",
   heroTrustBadge1: "COD Available",
   heroTrustBadge2: "Premium Lycra Fabric",

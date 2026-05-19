@@ -1131,7 +1131,7 @@ export default function AdminDashboard() {
                         value={storefrontForm.heroHeading}
                         onChange={(e) => setStorefrontForm({...storefrontForm, heroHeading: e.target.value})}
                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[80px]"
-                        placeholder="e.g. Premium Lycra Everyday Comfort Track Pants."
+                        placeholder="e.g. Premium Lycra Everyday Comfort Track Pants"
                       />
                     </div>
 
