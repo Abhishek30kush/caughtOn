@@ -428,13 +428,7 @@ export default function LandingPage() {
           <div className="glass-effect p-5 sm:p-7 rounded-3xl border border-white/5 relative shadow-2xl space-y-4">
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
             
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-3 border-b border-white/5">
-              <div>
-                <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">
-                  Personalize Your Drop
-                </span>
-              </div>
-            </div>
+
 
             {selectedProduct ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start !mt-4">
