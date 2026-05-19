@@ -97,7 +97,8 @@ export default function LandingPage() {
           }
           const defaultProduct = productsData[0] || null;
           if (defaultProduct && defaultProduct.sizes && defaultProduct.sizes.length > 0) {
-            setFormData(prev => ({ ...prev, size: defaultProduct.sizes[0] }));
+            const firstInStockSize = defaultProduct.sizes.find(s => defaultProduct.sizesStock?.[s] !== 0) || defaultProduct.sizes[0];
+            setFormData(prev => ({ ...prev, size: firstInStockSize }));
           }
           return defaultProduct;
         });
@@ -194,9 +195,10 @@ export default function LandingPage() {
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
     setHasManuallySelected(true);
-    // Reset to the product's first available size so they don't submit an invalid size selection
+    // Reset to the product's first available in-stock size so they don't submit an invalid size selection
     if (product.sizes && product.sizes.length > 0) {
-      setFormData(prev => ({ ...prev, size: product.sizes[0] }));
+      const firstInStockSize = product.sizes.find(s => product.sizesStock?.[s] !== 0) || product.sizes[0];
+      setFormData(prev => ({ ...prev, size: firstInStockSize }));
     } else {
       setFormData(prev => ({ ...prev, size: 'M' }));
     }
@@ -212,8 +214,23 @@ export default function LandingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Stock Validation Check
-      if (selectedProduct.stock !== undefined) {
+      // Size-Specific Stock Validation Check
+      if (selectedProduct.sizesStock !== undefined) {
+        const sizeStock = selectedProduct.sizesStock[formData.size];
+        if (sizeStock !== undefined) {
+          if (sizeStock <= 0) {
+            toast.error(`Sorry, size ${formData.size} is currently out of stock!`);
+            setLoading(false);
+            return;
+          }
+          if (sizeStock < quantity) {
+            toast.error(`Sorry, only ${sizeStock} items left in stock for size ${formData.size}!`);
+            setLoading(false);
+            return;
+          }
+        }
+      } else if (selectedProduct.stock !== undefined) {
+        // Fallback for legacy products
         if (selectedProduct.stock <= 0) {
           toast.error('Sorry, this product is currently out of stock!');
           setLoading(false);
@@ -241,7 +258,19 @@ export default function LandingPage() {
       });
 
       // Automatically decrement stock level in Firestore
-      if (selectedProduct.stock !== undefined) {
+      if (selectedProduct.sizesStock !== undefined && selectedProduct.sizesStock[formData.size] !== undefined) {
+        const productRef = doc(db, "products", selectedProduct.id);
+        const updatedSizesStock = {
+          ...selectedProduct.sizesStock,
+          [formData.size]: Math.max(0, selectedProduct.sizesStock[formData.size] - quantity)
+        };
+        const totalStock = Object.values(updatedSizesStock).reduce((sum, v) => sum + v, 0);
+        await updateDoc(productRef, {
+          sizesStock: updatedSizesStock,
+          stock: totalStock
+        });
+      } else if (selectedProduct.stock !== undefined) {
+        // Fallback for legacy products
         const productRef = doc(db, "products", selectedProduct.id);
         await updateDoc(productRef, {
           stock: Math.max(0, selectedProduct.stock - quantity)
@@ -319,23 +348,48 @@ export default function LandingPage() {
             </div>
 
             {/* Stock status badge */}
-            {selectedProduct?.stock !== undefined && selectedProduct.stock <= 0 && (
-              <div className="glass-effect border border-rose-500/30 bg-rose-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(244,63,94,0.15)]">
-                <div className="absolute top-0 right-0 w-8 h-8 bg-rose-500/10 rounded-full blur-md"></div>
-                <span className="text-[10px] font-black tracking-widest text-rose-400 uppercase leading-none mb-1.5">AVAILABILITY</span>
-                <span className="text-lg sm:text-xl font-black text-rose-500 leading-none">
-                  OUT OF STOCK
-                </span>
-              </div>
-            )}
-            {selectedProduct?.stock !== undefined && selectedProduct.stock > 0 && selectedProduct.stock <= 5 && (
-              <div className="glass-effect border border-amber-500/30 bg-amber-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse">
-                <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/10 rounded-full blur-md"></div>
-                <span className="text-[10px] font-black tracking-widest text-amber-400 uppercase leading-none mb-1.5">STOCK LEVEL</span>
-                <span className="text-lg sm:text-xl font-black text-amber-500 leading-none">
-                  ONLY {selectedProduct.stock} LEFT!
-                </span>
-              </div>
+            {selectedProduct?.sizesStock?.[formData.size] !== undefined ? (
+              <>
+                {selectedProduct.sizesStock[formData.size] <= 0 && (
+                  <div className="glass-effect border border-rose-500/30 bg-rose-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(244,63,94,0.15)]">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-rose-500/10 rounded-full blur-md"></div>
+                    <span className="text-[10px] font-black tracking-widest text-rose-400 uppercase leading-none mb-1.5">SIZE {formData.size} STATUS</span>
+                    <span className="text-lg sm:text-xl font-black text-rose-500 leading-none">
+                      OUT OF STOCK
+                    </span>
+                  </div>
+                )}
+                {selectedProduct.sizesStock[formData.size] > 0 && selectedProduct.sizesStock[formData.size] <= 5 && (
+                  <div className="glass-effect border border-amber-500/30 bg-amber-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/10 rounded-full blur-md"></div>
+                    <span className="text-[10px] font-black tracking-widest text-amber-400 uppercase leading-none mb-1.5">SIZE {formData.size} STOCK</span>
+                    <span className="text-lg sm:text-xl font-black text-amber-500 leading-none">
+                      ONLY {selectedProduct.sizesStock[formData.size]} LEFT!
+                    </span>
+                  </div>
+                )}
+              </>
+            ) : selectedProduct?.stock !== undefined && (
+              <>
+                {selectedProduct.stock <= 0 && (
+                  <div className="glass-effect border border-rose-500/30 bg-rose-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(244,63,94,0.15)]">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-rose-500/10 rounded-full blur-md"></div>
+                    <span className="text-[10px] font-black tracking-widest text-rose-400 uppercase leading-none mb-1.5">AVAILABILITY</span>
+                    <span className="text-lg sm:text-xl font-black text-rose-500 leading-none">
+                      OUT OF STOCK
+                    </span>
+                  </div>
+                )}
+                {selectedProduct.stock > 0 && selectedProduct.stock <= 5 && (
+                  <div className="glass-effect border border-amber-500/30 bg-amber-950/20 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/10 rounded-full blur-md"></div>
+                    <span className="text-[10px] font-black tracking-widest text-amber-400 uppercase leading-none mb-1.5">STOCK LEVEL</span>
+                    <span className="text-lg sm:text-xl font-black text-amber-500 leading-none">
+                      ONLY {selectedProduct.stock} LEFT!
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -515,20 +569,36 @@ export default function LandingPage() {
                       Size: <span className="text-cyan-400 font-extrabold">{formData.size}</span>
                     </label>
                     <div className="flex flex-wrap gap-2.5 pt-1">
-                      {selectedProduct.sizes.map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setFormData({...formData, size: s})}
-                          className={`w-11 h-11 rounded-xl font-bold transition-all duration-300 border text-xs sm:text-sm cursor-pointer ${
-                            formData.size === s 
-                              ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105' 
-                              : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white'
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
+                      {selectedProduct.sizes.map((s) => {
+                        const isOutOfStock = selectedProduct.sizesStock?.[s] === 0;
+                        return (
+                          <button
+                            key={s}
+                            type="button"
+                            disabled={isOutOfStock}
+                            onClick={() => {
+                              if (!isOutOfStock) {
+                                setFormData({...formData, size: s});
+                                setQuantity(1); // Reset quantity to 1 when changing size to avoid exceeding stock
+                              }
+                            }}
+                            className={`w-11 h-11 rounded-xl font-bold transition-all duration-300 border text-xs sm:text-sm relative overflow-hidden ${
+                              isOutOfStock 
+                                ? 'bg-neutral-950/20 border-rose-950/30 text-neutral-600 cursor-not-allowed opacity-40'
+                                : formData.size === s 
+                                  ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105' 
+                                  : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white cursor-pointer'
+                            }`}
+                          >
+                            {s}
+                            {isOutOfStock && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-[140%] h-[1.5px] bg-rose-500/50 rotate-45 transform origin-center"></div>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -553,7 +623,13 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={() => setQuantity(q => {
-                          if (selectedProduct.stock !== undefined && q >= selectedProduct.stock) {
+                          const sizeStock = selectedProduct.sizesStock?.[formData.size];
+                          if (sizeStock !== undefined) {
+                            if (q >= sizeStock) {
+                              toast.error(`Only ${sizeStock} items available in stock for size ${formData.size}.`);
+                              return q;
+                            }
+                          } else if (selectedProduct.stock !== undefined && q >= selectedProduct.stock) {
                             toast.error(`Only ${selectedProduct.stock} items available in stock.`);
                             return q;
                           }
@@ -714,9 +790,9 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                disabled={loading || (selectedProduct.stock !== undefined && selectedProduct.stock <= 0)}
+                disabled={loading || (selectedProduct.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct.stock !== undefined && selectedProduct.stock <= 0)}
                 className={`w-full group font-bold py-4 rounded-xl flex justify-center items-center space-x-2.5 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 text-sm uppercase tracking-wider ${
-                  (selectedProduct.stock !== undefined && selectedProduct.stock <= 0)
+                  ((selectedProduct.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct.stock !== undefined && selectedProduct.stock <= 0))
                     ? 'bg-rose-950/40 border border-rose-900/30 text-rose-500 cursor-not-allowed shadow-none'
                     : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white cursor-pointer shadow-[0_8px_30px_rgba(6,182,212,0.25)]'
                 }`}
@@ -725,11 +801,11 @@ export default function LandingPage() {
                 <span>
                   {loading 
                     ? 'Processing Order...' 
-                    : (selectedProduct.stock !== undefined && selectedProduct.stock <= 0) 
-                      ? 'Out of Stock' 
+                    : (selectedProduct.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct.stock !== undefined && selectedProduct.stock <= 0) 
+                      ? `Size ${formData.size} Out of Stock` 
                       : 'Place Order (COD)'}
                 </span>
-                {!(selectedProduct.stock !== undefined && selectedProduct.stock <= 0) && (
+                {!((selectedProduct.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct.stock !== undefined && selectedProduct.stock <= 0)) && (
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 )}
               </button>
@@ -758,16 +834,18 @@ export default function LandingPage() {
             <button
               onClick={() => document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' })}
               className={`group w-full flex items-center justify-center space-x-2.5 font-black py-4 px-6 rounded-full transition-all duration-300 transform active:scale-95 cursor-pointer text-xs sm:text-sm uppercase tracking-widest text-center ${
-                (selectedProduct?.stock !== undefined && selectedProduct.stock <= 0)
+                (selectedProduct?.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct?.stock !== undefined && selectedProduct.stock <= 0)
                   ? 'bg-rose-950 border border-rose-500/30 text-rose-400 shadow-[0_12px_35px_rgba(244,63,94,0.3)]'
                   : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_12px_35px_rgba(6,182,212,0.45)] border border-cyan-400/20'
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
               <span>
-                {(selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) ? 'Out of Stock' : 'Order Now'}
+                {(selectedProduct?.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) 
+                  ? `Size ${formData.size} Out of Stock` 
+                  : 'Order Now'}
               </span>
-              {!(selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) && (
+              {!(selectedProduct?.sizesStock !== undefined ? selectedProduct.sizesStock[formData.size] <= 0 : selectedProduct?.stock !== undefined && selectedProduct.stock <= 0) && (
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               )}
             </button>

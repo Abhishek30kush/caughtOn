@@ -33,6 +33,7 @@ export default function AdminDashboard() {
     originalPrice: '',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     stock: '',
+    sizesStock: { S: 10, M: 10, L: 10, XL: 10, XXL: 10 },
     imageUrl: '',
     features: []
   });
@@ -317,6 +318,7 @@ export default function AdminDashboard() {
       originalPrice: '',
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       stock: '',
+      sizesStock: { S: 10, M: 10, L: 10, XL: 10, XXL: 10 },
       imageUrl: '',
       features: []
     });
@@ -327,6 +329,15 @@ export default function AdminDashboard() {
 
   const openEditProductModal = (product) => {
     setEditingProduct(product);
+    // Dynamic fallback: divide existing overall stock across sizes if sizesStock doesn't exist
+    const defaultStockValue = product.stock !== undefined ? Math.max(0, Math.floor(product.stock / (product.sizes?.length || 5))) : 10;
+    const fallbackSizesStock = {
+      S: defaultStockValue,
+      M: defaultStockValue,
+      L: defaultStockValue,
+      XL: defaultStockValue,
+      XXL: defaultStockValue
+    };
     setProductForm({
       title: product.title || '',
       description: product.description || '',
@@ -334,6 +345,7 @@ export default function AdminDashboard() {
       originalPrice: product.originalPrice || '',
       sizes: product.sizes || ['S', 'M', 'L', 'XL', 'XXL'],
       stock: product.stock !== undefined ? String(product.stock) : '',
+      sizesStock: product.sizesStock || fallbackSizesStock,
       imageUrl: product.imageUrl || '',
       features: product.features ? product.features.map(f => ({
         file: null,
@@ -493,13 +505,21 @@ export default function AdminDashboard() {
       toast.dismiss('feature-upload');
 
       // 3. Prepare payload
+      const cleanedSizesStock = productForm.sizes.reduce((acc, s) => {
+        acc[s] = productForm.sizesStock?.[s] !== undefined ? Number(productForm.sizesStock[s]) : 10;
+        return acc;
+      }, {});
+
+      const totalStock = Object.values(cleanedSizesStock).reduce((sum, v) => sum + v, 0);
+
       const productPayload = {
         title: productForm.title,
         description: productForm.description,
         price: Number(productForm.price),
         originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : null,
         sizes: productForm.sizes,
-        stock: productForm.stock !== '' ? Number(productForm.stock) : 0,
+        sizesStock: cleanedSizesStock,
+        stock: totalStock,
         imageUrl: finalImageUrl || 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?auto=format&fit=crop&q=80&w=800',
         features: uploadedFeatures,
         updatedAt: new Date(),
@@ -1495,40 +1515,79 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Stock Quantity *</label>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Total Stock (Auto)</label>
                   <input 
-                    type="number" 
-                    required
-                    value={productForm.stock}
-                    onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
-                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
-                    placeholder="e.g. 50"
+                    type="text" 
+                    readOnly
+                    disabled
+                    value={productForm.sizes.reduce((sum, s) => sum + (productForm.sizesStock?.[s] !== undefined ? Number(productForm.sizesStock[s]) : 10), 0)}
+                    className="w-full bg-neutral-900/40 border border-white/5 rounded-xl px-4 py-3 text-cyan-400 text-sm cursor-not-allowed text-center font-black"
                   />
                 </div>
               </div>
 
               {/* Sizes Selection */}
-              <div>
-                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Sizes Configuration</label>
-                <div className="flex gap-2.5">
-                  {['S', 'M', 'L', 'XL', 'XXL'].map(s => {
-                    const isChecked = productForm.sizes.includes(s);
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => handleSizeToggle(s)}
-                        className={`w-10 h-10 rounded-xl font-bold border text-xs transition-all cursor-pointer ${
-                          isChecked 
-                            ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_10px_rgba(6,182,212,0.3)]' 
-                            : 'bg-neutral-950 border-white/10 text-neutral-400 hover:text-white'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    );
-                  })}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Sizes Configuration</label>
+                  <div className="flex gap-2.5">
+                    {['S', 'M', 'L', 'XL', 'XXL'].map(s => {
+                      const isChecked = productForm.sizes.includes(s);
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => handleSizeToggle(s)}
+                          className={`w-10 h-10 rounded-xl font-bold border text-xs transition-all cursor-pointer ${
+                            isChecked 
+                              ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_10px_rgba(6,182,212,0.3)]' 
+                              : 'bg-neutral-950 border-white/10 text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                {/* Dynamic Size-specific Stock Inputs */}
+                {productForm.sizes.length > 0 && (
+                  <div className="bg-neutral-950/60 border border-white/5 rounded-2xl p-4.5 space-y-3.5 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent"></div>
+                    <div className="text-[10px] font-black text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <span className="w-1 h-1 rounded-full bg-cyan-400"></span>
+                      Set Available Stock Per Size
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                      {productForm.sizes.map(s => (
+                        <div key={s} className="space-y-1.5 bg-neutral-950/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center">
+                          <label className="block text-[10px] font-extrabold text-cyan-400 uppercase">
+                            Size {s}
+                          </label>
+                          <input
+                            type="number"
+                            required
+                            value={productForm.sizesStock?.[s] !== undefined ? productForm.sizesStock[s] : 10}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              setProductForm(prev => ({
+                                ...prev,
+                                sizesStock: {
+                                  ...prev.sizesStock,
+                                  [s]: val
+                                }
+                              }));
+                            }}
+                            className="w-full bg-neutral-950 border border-white/10 rounded-lg px-2 py-1.5 text-white placeholder-neutral-700 focus:outline-none focus:border-cyan-500 text-xs text-center font-bold"
+                            placeholder="10"
+                            min="0"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Product Details Showcase List */}
