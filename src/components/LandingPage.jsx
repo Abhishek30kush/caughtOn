@@ -270,10 +270,25 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.05] text-white">
             {storefrontSettings.heroHeading}
           </h2>
-          
-          <p className="text-base sm:text-lg text-neutral-400 max-w-md leading-relaxed whitespace-pre-line">
-            {storefrontSettings.heroSubheading}
-          </p>
+          {/* Dynamic Price Display Boxes */}
+          <div className="flex flex-row items-center gap-4 pt-1.5 pb-2">
+            {/* Offer Price Box */}
+            <div className="glass-effect border border-emerald-500/30 bg-emerald-950/10 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.15)]">
+              <div className="absolute top-0 right-0 w-8 h-8 bg-emerald-500/10 rounded-full blur-md"></div>
+              <span className="text-[10px] font-black tracking-widest text-emerald-400 uppercase leading-none mb-1.5">OFFER PRICE</span>
+              <span className="text-2xl sm:text-3xl font-black text-emerald-400 leading-none">
+                ₹{selectedProduct?.price || 999}
+              </span>
+            </div>
+
+            {/* Original Price Box */}
+            <div className="glass-effect border border-white/5 bg-neutral-900/30 px-5 py-3 rounded-2xl flex flex-col justify-center min-w-[130px] relative overflow-hidden">
+              <span className="text-[10px] font-black tracking-widest text-neutral-500 uppercase leading-none mb-1.5">ORIGINAL M.R.P.</span>
+              <span className="text-xl sm:text-2xl font-black text-neutral-500 line-through leading-none">
+                ₹{selectedProduct?.originalPrice || 1499}
+              </span>
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-3 pt-2">
             {storefrontSettings.heroTrustBadge1 && (
