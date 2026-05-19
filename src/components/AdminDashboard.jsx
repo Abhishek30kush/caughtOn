@@ -730,6 +730,16 @@ export default function AdminDashboard() {
                         <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-neutral-300">
                           Size: {order.size}
                         </span>
+                        {order.color && (
+                          <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-neutral-300">
+                            Color: {order.color}
+                          </span>
+                        )}
+                        {order.quantity && (
+                          <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-neutral-300">
+                            Qty: {order.quantity}
+                          </span>
+                        )}
                         <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs font-extrabold text-emerald-400 uppercase tracking-wider">
                           Cash On Delivery
                         </span>

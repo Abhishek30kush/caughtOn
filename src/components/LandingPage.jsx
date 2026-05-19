@@ -19,6 +19,16 @@ export default function LandingPage() {
   const [layoutMode, setLayoutMode] = useState('showcase');
   const [storefrontSettings, setStorefrontSettings] = useState(DEFAULT_SETTINGS);
 
+  // Selection states
+  const [selectedColor, setSelectedColor] = useState('Charcoal Black');
+  const [quantity, setQuantity] = useState(1);
+
+  const colors = [
+    { name: 'Charcoal Black', hex: '#171717' },
+    { name: 'Midnight Navy', hex: '#1e3a8a' },
+    { name: 'Arctic Grey', hex: '#9ca3af' }
+  ];
+
   // Listen to storefront customizer settings
   useEffect(() => {
     const docRef = doc(db, 'settings', 'storefront');
@@ -182,15 +192,18 @@ export default function LandingPage() {
         phone: formData.phone,
         address: formData.address,
         size: formData.size,
+        color: selectedColor,
+        quantity: Number(quantity),
         productId: selectedProduct.id,
         productTitle: selectedProduct.title,
         status: 'Pending',
         createdAt: new Date(),
-        total: selectedProduct.price
+        total: selectedProduct.price * quantity
       });
       
       toast.success('Order placed successfully! We will contact you soon.');
       setFormData({ name: '', phone: '', address: '', size: selectedProduct.sizes?.[0] || 'M' });
+      setQuantity(1);
     } catch (error) {
       toast.error('Failed to place order. Try again.');
       console.error(error);
@@ -216,7 +229,7 @@ export default function LandingPage() {
               Track Order
             </Link>
             <button 
-              onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })} 
+              onClick={() => document.getElementById('customizer').scrollIntoView({ behavior: 'smooth' })} 
               className="flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-2 rounded-full bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all border border-cyan-500/20 text-[11px] sm:text-sm font-semibold hover:animate-none active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
             >
               <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -234,7 +247,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-10"
+          className="space-y-10 order-2 lg:order-1"
         >
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs sm:text-sm font-semibold tracking-wide shadow-[0_0_15px_rgba(6,182,212,0.15)]">
             <span className="relative flex h-2 w-2">
@@ -272,10 +285,10 @@ export default function LandingPage() {
           </div>
 
           <button 
-            onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })} 
+            onClick={() => document.getElementById('customizer').scrollIntoView({ behavior: 'smooth' })} 
             className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4.5 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_8px_25px_rgba(6,182,212,0.3)] text-sm"
           >
-            <span>Explore Showcase Catalog</span>
+            <span>Order Now</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </motion.div>
@@ -285,7 +298,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative animate-float"
+          className="relative animate-float order-1 lg:order-2"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/25 to-blue-500/25 blur-[100px] -z-10 rounded-full opacity-60"></div>
           <div className="w-full aspect-[4/5] rounded-3xl overflow-hidden glass-effect border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shadow-cyan-950/20 hover:border-cyan-500/30 transition-all duration-500 relative">
@@ -373,6 +386,123 @@ export default function LandingPage() {
         </motion.div>
       </header>
 
+      {/* Fabric Color and Quantity Customizer Section */}
+      <section id="customizer" className="scroll-mt-20 py-12 relative border-t border-white/5 bg-neutral-950 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="glass-effect p-8 sm:p-10 rounded-3xl border border-white/5 relative shadow-2xl space-y-8">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
+            
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-white/5">
+              <div>
+                <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">
+                  Personalize Your Drop
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2">
+                  Choose Color & Quantity
+                </h3>
+              </div>
+              {selectedProduct && (
+                <div className="text-left md:text-right shrink-0">
+                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold block">Estimated Amount</span>
+                  <div className="flex items-baseline gap-1.5 mt-1 justify-start md:justify-end">
+                    <span className="text-3xl font-black text-white">₹{selectedProduct.price * quantity}</span>
+                    <span className="text-xs text-neutral-400 font-medium">({quantity}x)</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {selectedProduct ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                {/* Left Side: Color Picker */}
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
+                    Select Fabric Color: <span className="text-cyan-400 font-extrabold">{selectedColor}</span>
+                  </label>
+                  <div className="flex items-center gap-4.5 pt-1">
+                    {colors.map((c) => (
+                      <button
+                        key={c.name}
+                        type="button"
+                        onClick={() => setSelectedColor(c.name)}
+                        className={`relative flex items-center justify-center p-1 rounded-full transition-all duration-300 cursor-pointer ${
+                          selectedColor === c.name 
+                            ? 'scale-110 ring-2 ring-cyan-500 ring-offset-2 ring-offset-neutral-950' 
+                            : 'hover:scale-105'
+                        }`}
+                        title={c.name}
+                      >
+                        <span 
+                          className="w-10 h-10 rounded-full border border-white/10" 
+                          style={{ backgroundColor: c.hex }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Side: Quantity Control */}
+                <div className="space-y-4 md:border-l md:border-white/5 md:pl-8">
+                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
+                    Select Drop Quantity:
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center bg-neutral-950 border border-white/10 rounded-xl overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="w-11 h-11 flex items-center justify-center text-neutral-400 hover:text-white transition-colors hover:bg-white/5 font-extrabold text-xl cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="w-11 h-11 flex items-center justify-center font-bold text-sm text-white select-none">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(q => q + 1)}
+                        className="w-11 h-11 flex items-center justify-center text-neutral-400 hover:text-white transition-colors hover:bg-white/5 font-extrabold text-xl cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="text-[11px] text-neutral-500 font-medium tracking-wide">
+                      Free delivery India-wide
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-neutral-500 text-sm">
+                Catalog product loading or empty...
+              </div>
+            )}
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
+              <button
+                type="button"
+                onClick={() => document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' })}
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 transform active:scale-98 cursor-pointer shadow-[0_8px_25px_rgba(6,182,212,0.2)] text-xs uppercase tracking-wider grow"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Go to Checkout Form</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })}
+                className="w-full sm:w-auto px-6 py-3.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-neutral-300 font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 cursor-pointer text-xs"
+              >
+                <span>View Details & Specs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Catalog Showroom Grid / Single Product Feature Showcase */}
       <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 relative border-t border-white/5">
         
@@ -385,19 +515,6 @@ export default function LandingPage() {
           // PREMIUM SINGLE-PRODUCT VERTICAL SHOWCASE (IMAGE TOP, TEXT BELOW)
           <div className="space-y-16 sm:space-y-32">
             
-            {/* Showcase Header */}
-            <div className="text-center mb-12 sm:mb-20 space-y-4">
-              <span className="px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                Product Specifications
-              </span>
-              <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                {storefrontSettings.catalogTitle || "Anatomy of Premium Comfort"}
-              </h3>
-              <p className="text-neutral-400 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
-                Scroll through the custom-engineered premium craftsmanship of our <span className="text-white font-extrabold">{selectedProduct.title}</span>.
-              </p>
-            </div>
-
             {activeFeatures.length > 0 ? (
               /* Vertical Stack Feature Rows (Image top, text below) */
               <div className="space-y-16 sm:space-y-32 max-w-4xl mx-auto">
@@ -429,21 +546,6 @@ export default function LandingPage() {
                           {feature.text}
                         </p>
                       )}
-
-                      <div className="pt-1">
-                        <button
-                          onClick={() => {
-                            const checkoutSection = document.getElementById('checkout');
-                            if (checkoutSection) {
-                              checkoutSection.scrollIntoView({ behavior: 'smooth' });
-                            }
-                          }}
-                          className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
-                        >
-                          <span>Secure This Drop</span>
-                          <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                        </button>
-                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -547,7 +649,9 @@ export default function LandingPage() {
                   )}
                   <div className="overflow-hidden">
                     <h4 className="font-extrabold text-white text-sm leading-tight truncate">{selectedProduct.title}</h4>
-                    <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-wider mt-1.5">Size Selected: {formData.size}</p>
+                    <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-wider mt-1.5">
+                      Size: {formData.size} | Color: {selectedColor} | Qty: {quantity}
+                    </p>
                   </div>
                 </div>
                 
@@ -558,7 +662,7 @@ export default function LandingPage() {
                     <h4 className="font-semibold text-neutral-300 text-sm">Total Amount (COD)</h4>
                     <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Free India-wide Delivery</p>
                   </div>
-                  <div className="text-3xl font-black text-white">₹{selectedProduct.price}</div>
+                  <div className="text-3xl font-black text-white">₹{selectedProduct.price * quantity}</div>
                 </div>
               </div>
 
