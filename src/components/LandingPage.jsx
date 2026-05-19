@@ -247,17 +247,9 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-10 order-2 lg:order-1"
+          className="space-y-6 order-2 lg:order-1"
         >
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs sm:text-sm font-semibold tracking-wide shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-            </span>
-            <span>{storefrontSettings.heroBadge}</span>
-          </div>
-          
-          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white whitespace-pre-line">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] text-white whitespace-pre-line">
             {storefrontSettings.heroHeading}
           </h2>
           
