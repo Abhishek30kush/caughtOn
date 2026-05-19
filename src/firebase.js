@@ -46,7 +46,7 @@ export const storage = storageInstance;
 
 export const DEFAULT_SETTINGS = {
   heroBadge: "EXCLUSIVELY CRAFTED DROPS AVAILABLE",
-  heroHeading: "Premium Everyday Comfort Trackpants.",
+  heroHeading: "Premium Everyday Comfort Track Pants.",
   heroSubheading: "Unmatched freedom of movement meets ultimate street-ready aesthetics. Experience structural premium tailoring designed for your daily street aesthetic.",
   heroTrustBadge1: "Free COD Delivery India",
   heroTrustBadge2: "100% Street Premium Fabric",
@@ -56,9 +56,9 @@ export const DEFAULT_SETTINGS = {
   aboutTitle: "About caughtOn",
   aboutTagline: "Engineering the perfect everyday wear for ultimate comfort and motion.",
   aboutParagraphs: [
-    "Welcome to caughtOn. We are a premium apparel brand based in Prayagraj, Uttar Pradesh, born from a singular, obsessive mission: to create the perfect everyday trackpant.",
-    "Our journey started with a simple observation: finding a trackpant that perfectly balances comfort, durability, and a modern aesthetic is incredibly difficult. Most options out there either compromise on the fabric quality or fail to provide a tailored, stylish fit.",
-    "That's why we engineered our signature trackpants. We use premium, high-density, breathable fabrics designed for endless motion—whether you're hitting the gym, lounging at home, or navigating active city streets. Every stitch is carefully crafted to ensure longevity and ultimate comfort.",
+    "Welcome to caughtOn. We are a premium apparel brand based in Prayagraj, Uttar Pradesh, born from a singular, obsessive mission: to create the perfect everyday track pant.",
+    "Our journey started with a simple observation: finding a track pant that perfectly balances comfort, durability, and a modern aesthetic is incredibly difficult. Most options out there either compromise on the fabric quality or fail to provide a tailored, stylish fit.",
+    "That's why we engineered our signature track pants. We use premium, high-density, breathable fabrics designed for endless motion—whether you're hitting the gym, lounging at home, or navigating active city streets. Every stitch is carefully crafted to ensure longevity and ultimate comfort.",
     "At caughtOn, we believe in keeping things simple. We focus on one core product and we make sure it's the absolute best one you'll ever wear. No distractions, just pure quality."
   ],
   contactAddress: "Prayagraj, Uttar Pradesh\nPin - 211011",

@@ -441,7 +441,7 @@ export default function LandingPage() {
                 {/* Left Side: Color Picker */}
                 <div className="space-y-4">
                   <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
-                    Select Fabric Color: <span className="text-cyan-400 font-extrabold">{selectedColor}</span>
+                    Color: <span className="text-cyan-400 font-extrabold">{selectedColor}</span>
                   </label>
                   <div className="flex items-center gap-4.5 pt-1">
                     {colors.map((c) => (
@@ -457,7 +457,7 @@ export default function LandingPage() {
                         title={c.name}
                       >
                         <span 
-                          className="w-10 h-10 rounded-full border border-white/10" 
+                           className="w-10 h-10 rounded-full border border-white/10" 
                           style={{ backgroundColor: c.hex }}
                         />
                       </button>
@@ -469,7 +469,7 @@ export default function LandingPage() {
                 {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                   <div className="space-y-4 md:border-l md:border-white/5 md:pl-8">
                     <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
-                      Select Drop Size: <span className="text-cyan-400 font-extrabold">{formData.size}</span>
+                      Size: <span className="text-cyan-400 font-extrabold">{formData.size}</span>
                     </label>
                     <div className="flex flex-wrap gap-2.5 pt-1">
                       {selectedProduct.sizes.map((s) => (
@@ -493,7 +493,7 @@ export default function LandingPage() {
                 {/* Right Side: Quantity Control */}
                 <div className="space-y-4 md:border-l md:border-white/5 md:pl-8">
                   <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
-                    Select Drop Quantity:
+                    Quantity:
                   </label>
                   <div className="flex items-center space-x-4 pt-1">
                     <div className="flex items-center bg-neutral-950 border border-white/10 rounded-xl overflow-hidden">
@@ -515,28 +515,10 @@ export default function LandingPage() {
                         +
                       </button>
                     </div>
-                    <span className="text-[11px] text-neutral-500 font-medium tracking-wide">
-                      Free delivery India-wide
-                    </span>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="text-center text-neutral-500 text-sm">
-                Catalog product loading or empty...
-              </div>
-            )}
-
-            <div className="pt-2 flex justify-center w-full">
-              <button
-                type="button"
-                onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-neutral-300 font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 cursor-pointer text-xs uppercase tracking-wider"
-              >
-                <span>View Details & Specs</span>
-                <ChevronRight className="w-3.5 h-3.5 rotate-90" />
-              </button>
-            </div>
+            ) : null}
           </div>
         </div>
       </section>

@@ -663,7 +663,7 @@ export default function AdminDashboard() {
               {activeTab === 'orders' 
                 ? 'Manage your customer orders, view incoming phone checkout forms, and update shipping logs.' 
                 : activeTab === 'products'
-                ? 'Add new trackpants products, set dynamic cross-out discounts, custom active sizes, and cover photos.'
+                ? 'Add new track pants products, set dynamic cross-out discounts, custom active sizes, and cover photos.'
                 : activeTab === 'hero'
                 ? 'Manage the landing page hero slideshow cover images and standard storefront layout choices.'
                 : 'Modify and update any text field, contact info, social links, brand stories, or legal policies instantly.'}
@@ -1131,7 +1131,7 @@ export default function AdminDashboard() {
                         value={storefrontForm.heroHeading}
                         onChange={(e) => setStorefrontForm({...storefrontForm, heroHeading: e.target.value})}
                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs min-h-[80px]"
-                        placeholder="e.g. Premium Everyday Comfort Trackpants."
+                        placeholder="e.g. Premium Everyday Comfort Track Pants."
                       />
                     </div>
 
@@ -1417,7 +1417,7 @@ export default function AdminDashboard() {
             
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
               <h3 className="text-xl font-extrabold text-white">
-                {editingProduct ? 'Edit Catalog Trackpant' : 'Add New Trackpant Drop'}
+                {editingProduct ? 'Edit Catalog Track Pant' : 'Add New Track Pant Drop'}
               </h3>
               <button 
                 onClick={() => setIsProductModalOpen(false)}
@@ -1430,14 +1430,14 @@ export default function AdminDashboard() {
             <form onSubmit={handleProductSubmit} className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               
               <div>
-                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Trackpant Title *</label>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Track Pant Title *</label>
                 <input 
                   type="text" 
                   required
                   value={productForm.title}
                   onChange={(e) => setProductForm({...productForm, title: e.target.value})}
                   className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-300 text-sm"
-                  placeholder="e.g. Classic Signature Black Trackpant"
+                  placeholder="e.g. Classic Signature Black Track Pant"
                 />
               </div>
 

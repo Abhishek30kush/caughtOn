@@ -72,7 +72,7 @@ export default function TrackOrder() {
             <Package className="w-8 h-8 text-cyan-400 animate-pulse" />
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight mb-4">Track Your Order</h1>
-          <p className="text-neutral-400 max-w-md mx-auto">Enter the phone number used during checkout to check the current shipment status of your premium trackpants.</p>
+          <p className="text-neutral-400 max-w-md mx-auto">Enter the phone number used during checkout to check the current shipment status of your premium track pants.</p>
         </div>
 
         <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-4 mb-16">
@@ -108,7 +108,7 @@ export default function TrackOrder() {
                 <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
                   <div>
                     <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">Order ID: {order.id.slice(-8).toUpperCase()}</div>
-                    <h4 className="text-lg font-bold text-white mb-1">Premium Everyday Trackpant</h4>
+                    <h4 className="text-lg font-bold text-white mb-1">Premium Everyday Track Pant</h4>
                     <div className="flex items-center space-x-2 text-sm text-neutral-400 font-medium">
                       <span>Size: {order.size}</span>
                       <span>•</span>
