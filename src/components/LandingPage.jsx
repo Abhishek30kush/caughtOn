@@ -431,7 +431,7 @@ export default function LandingPage() {
             </div>
 
             {selectedProduct ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center !mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start !mt-4">
                 {/* Left Side: Color Picker */}
                 <div className="space-y-4">
                   <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
@@ -459,12 +459,37 @@ export default function LandingPage() {
                   </div>
                 </div>
 
+                {/* Center Side: Size Selection */}
+                {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
+                  <div className="space-y-4 md:border-l md:border-white/5 md:pl-8">
+                    <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
+                      Select Drop Size: <span className="text-cyan-400 font-extrabold">{formData.size}</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2.5 pt-1">
+                      {selectedProduct.sizes.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setFormData({...formData, size: s})}
+                          className={`w-11 h-11 rounded-xl font-bold transition-all duration-300 border text-xs sm:text-sm cursor-pointer ${
+                            formData.size === s 
+                              ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105' 
+                              : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Right Side: Quantity Control */}
                 <div className="space-y-4 md:border-l md:border-white/5 md:pl-8">
                   <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
                     Select Drop Quantity:
                   </label>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 pt-1">
                     <div className="flex items-center bg-neutral-950 border border-white/10 rounded-xl overflow-hidden">
                       <button
                         type="button"
@@ -593,29 +618,6 @@ export default function LandingPage() {
             <form onSubmit={handleSubmit} className="glass-effect p-5 sm:p-8 rounded-3xl border border-white/5 space-y-5 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
               
-              {/* Size Selection */}
-              {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
-                <div>
-                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase mb-2">Select Drop Size Configuration</label>
-                  <div className="flex flex-wrap gap-3">
-                    {selectedProduct.sizes.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setFormData({...formData, size: s})}
-                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-bold transition-all duration-300 border text-sm sm:text-base cursor-pointer ${
-                          formData.size === s 
-                            ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] scale-105 sm:scale-110' 
-                            : 'bg-neutral-950/60 border-white/10 text-neutral-400 hover:bg-neutral-900 hover:border-white/20 hover:text-white'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Buyer Full Name</label>
