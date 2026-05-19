@@ -568,12 +568,12 @@ export default function AdminDashboard() {
 
       {/* Sidebar / Left Column */}
       <aside className={`
-        fixed inset-y-0 left-0 z-40 w-72 bg-neutral-950 border-r border-white/5 p-6 flex flex-col justify-between transition-transform duration-300
+        fixed inset-y-0 left-0 z-40 w-72 bg-neutral-950 border-r border-white/5 p-5 flex flex-col justify-between transition-transform duration-300
         lg:relative lg:translate-x-0 lg:z-20 lg:bg-neutral-950/80 lg:backdrop-blur-md
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div>
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-5">
             <Link to="/" className="text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>
               <span className="text-white">caught</span>
               <span className="gradient-text font-black">On</span>
@@ -583,10 +583,10 @@ export default function AdminDashboard() {
             </span>
           </div>
 
-          <nav className="space-y-2.5">
+          <nav className="space-y-2">
             <button 
               onClick={() => { setActiveTab('orders'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'orders'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
                   : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -598,7 +598,7 @@ export default function AdminDashboard() {
 
             <button 
               onClick={() => { setActiveTab('products'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'products'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
                   : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -610,7 +610,7 @@ export default function AdminDashboard() {
 
             <button 
               onClick={() => { setActiveTab('hero'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'hero'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
                   : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -622,7 +622,7 @@ export default function AdminDashboard() {
 
             <button 
               onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-sm transition-all border ${
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
                 activeTab === 'settings'
                   ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border-cyan-500/20 shadow-sm'
                   : 'text-neutral-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -632,17 +632,17 @@ export default function AdminDashboard() {
               <span>Storefront Customizer</span>
             </button>
 
-            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-4 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
+            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center space-x-3 text-neutral-400 hover:text-white px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all hover:bg-white/5 border border-transparent">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Store</span>
             </Link>
           </nav>
         </div>
 
-        <div className="mt-8 lg:mt-0 pt-6 border-t border-white/5 lg:border-t-0">
+        <div className="mt-6 lg:mt-0 pt-4 border-t border-white/5 lg:border-t-0">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all duration-300 transform active:scale-95 cursor-pointer"
+            className="w-full flex items-center justify-center space-x-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-3 rounded-2xl font-extrabold text-sm transition-all duration-300 transform active:scale-95 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out Session</span>
@@ -651,10 +651,10 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 sm:p-8 lg:p-12 overflow-y-auto relative z-10 w-full">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto relative z-10 w-full">
         
         {/* Header */}
-        <header className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight mb-1 text-white">
               {activeTab === 'orders' ? 'Orders Dashboard' : activeTab === 'products' ? 'Product Inventory' : activeTab === 'hero' ? 'Hero Customizer' : 'Storefront Customizer'}
