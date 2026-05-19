@@ -502,19 +502,19 @@ export default function LandingPage() {
           </div>
         ) : selectedProduct ? (
           // PREMIUM SINGLE-PRODUCT VERTICAL SHOWCASE (IMAGE TOP, TEXT BELOW)
-          <div className="space-y-16 sm:space-y-32">
+          <div className="space-y-8 sm:space-y-12">
             
             {activeFeatures.length > 0 ? (
               /* Vertical Stack Feature Rows (Image top, text below) */
-              <div className="space-y-16 sm:space-y-32 max-w-4xl mx-auto">
+              <div className="space-y-8 sm:space-y-12 max-w-4xl mx-auto">
                 {activeFeatures.map((feature, idx) => (
                   <motion.div 
                     key={idx}
-                    initial={{ opacity: 0, y: 60 }}
+                    initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="flex flex-col items-center space-y-6 sm:space-y-8 pb-12 sm:pb-20 border-b border-white/5 last:border-b-0 last:pb-0"
+                    className="flex flex-col items-center space-y-4 sm:space-y-5 pb-6 sm:pb-8 border-b border-white/5 last:border-b-0 last:pb-0"
                   >
                     {/* Feature Image Wrapper */}
                     <div className="w-full group">
