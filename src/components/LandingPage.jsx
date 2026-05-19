@@ -434,15 +434,6 @@ export default function LandingPage() {
                   Personalize Your Drop
                 </span>
               </div>
-              {selectedProduct && (
-                <div className="text-left md:text-right shrink-0">
-                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold block">Estimated Amount</span>
-                  <div className="flex items-baseline gap-1.5 mt-1 justify-start md:justify-end">
-                    <span className="text-3xl font-black text-white">₹{selectedProduct.price * quantity}</span>
-                    <span className="text-xs text-neutral-400 font-medium">({quantity}x)</span>
-                  </div>
-                </div>
-              )}
             </div>
 
             {selectedProduct ? (
