@@ -596,7 +596,7 @@ export default function LandingPage() {
       </section>
 
       {/* Checkout Section */}
-      <section id="checkout" className="scroll-mt-20 bg-neutral-950 pt-4 pb-12 lg:pt-6 lg:pb-16 relative overflow-hidden border-t border-white/5">
+      <section id="checkout" className="scroll-mt-20 bg-neutral-950 pt-4 pb-6 lg:pt-6 lg:pb-8 relative overflow-hidden border-t border-white/5">
         <div className="max-w-3xl mx-auto px-6 relative">
           <div className="absolute -top-12 -left-12 w-64 h-64 radial-glow rounded-full opacity-50 -z-10 pointer-events-none"></div>
           
