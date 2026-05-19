@@ -241,7 +241,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 sm:pt-28 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-12 sm:pt-8 lg:pt-24 lg:pb-24 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         {/* Left: Product Info */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
