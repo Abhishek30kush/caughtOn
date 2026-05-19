@@ -53,6 +53,24 @@ export default function LandingPage() {
     size: 'M'
   });
 
+  const [showFloatButton, setShowFloatButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const checkoutEl = document.getElementById('checkout');
+      if (!checkoutEl) {
+        setShowFloatButton(window.scrollY > 150);
+        return;
+      }
+      const rect = checkoutEl.getBoundingClientRect();
+      const isCheckoutVisible = rect.top < window.innerHeight - 100;
+      setShowFloatButton(window.scrollY > 150 && !isCheckoutVisible);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Real-time catalog snapshot listener
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
@@ -292,13 +310,6 @@ export default function LandingPage() {
             )}
           </div>
 
-          <button 
-            onClick={() => document.getElementById('customizer').scrollIntoView({ behavior: 'smooth' })} 
-            className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4.5 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_8px_25px_rgba(6,182,212,0.3)] text-sm"
-          >
-            <span>Order Now</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
         </motion.div>
 
         {/* Right: Premium Mockup Display */}
@@ -691,6 +702,28 @@ export default function LandingPage() {
       </section>
 
       <Footer />
+
+      {/* Floating Sticky Bottom CTA Button */}
+      <AnimatePresence>
+        {showFloatButton && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2.5rem)] max-w-[280px] sm:max-w-xs"
+          >
+            <button
+              onClick={() => document.getElementById('customizer').scrollIntoView({ behavior: 'smooth' })}
+              className="group w-full flex items-center justify-center space-x-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 px-6 rounded-full transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_12px_35px_rgba(6,182,212,0.45)] border border-cyan-400/20 text-xs sm:text-sm uppercase tracking-widest text-center"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Order Now</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
