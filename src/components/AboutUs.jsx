@@ -31,7 +31,7 @@ export default function AboutUs() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 radial-glow rounded-full -z-10 pointer-events-none"></div>
 
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-neutral-950/80 border-b border-white/5 w-full">
-        <div className="p-4 sm:p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+        <div className="p-2 sm:p-3.5 flex justify-between items-center max-w-7xl mx-auto w-full">
           <Link to="/" className="text-xl sm:text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
             <span className="text-white">caught</span>
             <span className="gradient-text font-black">On</span>
@@ -43,8 +43,8 @@ export default function AboutUs() {
         </div>
       </nav>
 
-      <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-24 relative z-10 w-full">
-        <div className="text-center mb-12">
+      <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
             <Sparkles className="w-8 h-8 text-cyan-400" />
           </div>

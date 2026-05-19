@@ -219,7 +219,7 @@ export default function LandingPage() {
       
       {/* Sticky Premium Header */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-neutral-950/80 border-b border-white/5 w-full">
-        <div className="p-3 sm:p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div className="p-2 sm:p-3.5 flex justify-between items-center max-w-7xl mx-auto">
           <Link to="/" className="text-lg sm:text-2xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
             <span className="text-white">caught</span>
             <span className="gradient-text font-black">On</span>
@@ -241,13 +241,13 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-4 sm:pt-8 lg:pt-24 lg:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-2 sm:pt-6 lg:pt-10 lg:pb-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
         {/* Left: Product Info */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-6 order-2 lg:order-1"
+          className="space-y-4.5 order-2 lg:order-1"
         >
           <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.05] text-white">
             {storefrontSettings.heroHeading}
@@ -395,11 +395,11 @@ export default function LandingPage() {
       </header>
 
       {/* Fabric Color and Quantity Customizer Section */}
-      <section id="customizer" className="scroll-mt-20 py-6 lg:py-12 relative border-t border-white/5 bg-neutral-950 overflow-hidden">
+      <section id="customizer" className="scroll-mt-20 py-4 lg:py-6 relative border-t border-white/5 bg-neutral-950 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         
         <div className="max-w-4xl mx-auto px-4">
-          <div className="glass-effect p-8 sm:p-10 rounded-3xl border border-white/5 relative shadow-2xl space-y-5">
+          <div className="glass-effect p-5 sm:p-7 rounded-3xl border border-white/5 relative shadow-2xl space-y-4">
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
             
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-3 border-b border-white/5">
@@ -509,20 +509,20 @@ export default function LandingPage() {
       </section>
 
       {/* Catalog Showroom Grid / Single Product Feature Showcase */}
-      <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-6 sm:pt-28 sm:pb-10 relative border-t border-white/5">
+      <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-4 sm:pt-12 sm:pb-6 relative border-t border-white/5">
         
         {products.length === 0 ? (
-          <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
+          <div className="glass-effect p-8 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
             <ShoppingBag className="w-10 h-10 text-neutral-700 animate-pulse" />
             <span className="text-xs uppercase tracking-wider font-bold text-neutral-500">Catalog drops currently empty</span>
           </div>
         ) : selectedProduct ? (
           // PREMIUM SINGLE-PRODUCT VERTICAL SHOWCASE (IMAGE TOP, TEXT BELOW)
-          <div className="space-y-8 sm:space-y-12">
+          <div className="space-y-6 sm:space-y-8">
             
             {activeFeatures.length > 0 ? (
               /* Vertical Stack Feature Rows (Image top, text below) */
-              <div className="space-y-8 sm:space-y-12 max-w-4xl mx-auto">
+              <div className="space-y-6 sm:space-y-8 max-w-4xl mx-auto">
                 {activeFeatures.map((feature, idx) => (
                   <motion.div 
                     key={idx}
@@ -530,7 +530,7 @@ export default function LandingPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="flex flex-col items-center space-y-4 sm:space-y-5 pb-6 sm:pb-8 border-b border-white/5 last:border-b-0 last:pb-0"
+                    className="flex flex-col items-center space-y-3 sm:space-y-4 pb-4 sm:pb-6 border-b border-white/5 last:border-b-0 last:pb-0"
                   >
                     {/* Feature Image Wrapper */}
                     <div className="w-full group">
@@ -569,23 +569,23 @@ export default function LandingPage() {
       </section>
 
       {/* Checkout Section */}
-      <section id="checkout" className="scroll-mt-20 bg-neutral-950 pt-8 pb-20 lg:pt-12 lg:pb-24 relative overflow-hidden border-t border-white/5">
+      <section id="checkout" className="scroll-mt-20 bg-neutral-950 pt-4 pb-12 lg:pt-6 lg:pb-16 relative overflow-hidden border-t border-white/5">
         <div className="max-w-3xl mx-auto px-6 relative">
           <div className="absolute -top-12 -left-12 w-64 h-64 radial-glow rounded-full opacity-50 -z-10 pointer-events-none"></div>
           
-          <div className="text-center mb-16 space-y-2">
+          <div className="text-center mb-8 space-y-1">
             <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Secure Your Drop Checkout</h3>
             <p className="text-neutral-400 max-w-md mx-auto text-sm">Provide your street delivery credentials. COD checkout is fully secured with zero hidden costs.</p>
           </div>
 
           {selectedProduct ? (
-            <form onSubmit={handleSubmit} className="glass-effect p-6 sm:p-12 rounded-3xl border border-white/5 space-y-8 shadow-2xl relative overflow-hidden">
+            <form onSubmit={handleSubmit} className="glass-effect p-5 sm:p-8 rounded-3xl border border-white/5 space-y-5 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
               
               {/* Size Selection */}
               {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                 <div>
-                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase mb-4">Select Drop Size Configuration</label>
+                  <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase mb-2">Select Drop Size Configuration</label>
                   <div className="flex flex-wrap gap-3">
                     {selectedProduct.sizes.map((s) => (
                       <button
