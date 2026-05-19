@@ -241,7 +241,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-12 sm:pt-8 lg:pt-24 lg:pb-24 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-4 sm:pt-8 lg:pt-24 lg:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         {/* Left: Product Info */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -379,7 +379,7 @@ export default function LandingPage() {
       </header>
 
       {/* Fabric Color and Quantity Customizer Section */}
-      <section id="customizer" className="scroll-mt-20 py-12 relative border-t border-white/5 bg-neutral-950 overflow-hidden">
+      <section id="customizer" className="scroll-mt-20 py-6 lg:py-12 relative border-t border-white/5 bg-neutral-950 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         
         <div className="max-w-4xl mx-auto px-4">
@@ -391,9 +391,6 @@ export default function LandingPage() {
                 <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">
                   Personalize Your Drop
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2">
-                  Choose Color & Quantity
-                </h3>
               </div>
               {selectedProduct && (
                 <div className="text-left md:text-right shrink-0">
