@@ -1167,6 +1167,28 @@ export default function AdminDashboard() {
                       />
                     </div>
 
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Trust Badge 3</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.heroTrustBadge3 || ''}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge3: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. 7-Day Easy Returns"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Hero Trust Badge 4</label>
+                      <input 
+                        type="text"
+                        value={storefrontForm.heroTrustBadge4 || ''}
+                        onChange={(e) => setStorefrontForm({...storefrontForm, heroTrustBadge4: e.target.value})}
+                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs"
+                        placeholder="e.g. Proudly Made in India"
+                      />
+                    </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <label className="block text-[10px] font-black uppercase tracking-wider text-neutral-400">Catalog Specs Title</label>
                       <input 
