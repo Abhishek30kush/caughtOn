@@ -518,7 +518,7 @@ export default function LandingPage() {
                   >
                     {/* Feature Image Wrapper */}
                     <div className="w-full group">
-                      <div className="relative aspect-[4/3] sm:aspect-[16/9] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
+                      <div className="relative aspect-[5/4] sm:aspect-[3/2] w-full rounded-3xl overflow-hidden glass-effect border border-white/5 shadow-2xl transition-all duration-500 group-hover:border-cyan-500/20">
                         <img 
                           src={feature.imageUrl} 
                           alt={feature.text || `Detail showcase ${idx + 1}`}
