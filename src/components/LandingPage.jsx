@@ -53,18 +53,18 @@ export default function LandingPage() {
     size: 'M'
   });
 
-  const [showFloatButton, setShowFloatButton] = useState(false);
+  const [showFloatButton, setShowFloatButton] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       const checkoutEl = document.getElementById('checkout');
       if (!checkoutEl) {
-        setShowFloatButton(window.scrollY > 150);
+        setShowFloatButton(true);
         return;
       }
       const rect = checkoutEl.getBoundingClientRect();
       const isCheckoutVisible = rect.top < window.innerHeight - 100;
-      setShowFloatButton(window.scrollY > 150 && !isCheckoutVisible);
+      setShowFloatButton(!isCheckoutVisible);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -716,7 +716,7 @@ export default function LandingPage() {
             className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2.5rem)] max-w-[280px] sm:max-w-xs"
           >
             <button
-              onClick={() => document.getElementById('customizer').scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' })}
               className="group w-full flex items-center justify-center space-x-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 px-6 rounded-full transition-all duration-300 transform active:scale-95 cursor-pointer shadow-[0_12px_35px_rgba(6,182,212,0.45)] border border-cyan-400/20 text-xs sm:text-sm uppercase tracking-widest text-center"
             >
               <ShoppingBag className="w-4 h-4" />
