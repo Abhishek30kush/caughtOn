@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     description: '',
     price: '',
     originalPrice: '',
-    sizes: ['S', 'M', 'L', 'XL'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     imageUrl: '',
     features: []
   });
@@ -314,7 +314,7 @@ export default function AdminDashboard() {
       description: '',
       price: '',
       originalPrice: '',
-      sizes: ['S', 'M', 'L', 'XL'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       imageUrl: '',
       features: []
     });
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
       description: product.description || '',
       price: product.price || '',
       originalPrice: product.originalPrice || '',
-      sizes: product.sizes || ['S', 'M', 'L', 'XL'],
+      sizes: product.sizes || ['S', 'M', 'L', 'XL', 'XXL'],
       imageUrl: product.imageUrl || '',
       features: product.features ? product.features.map(f => ({
         file: null,
