@@ -13,7 +13,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-neutral-900 text-white font-sans selection:bg-cyan-500/30">
+        <div className="min-h-screen w-full overflow-x-hidden bg-neutral-900 text-white font-sans selection:bg-cyan-500/30 relative">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutUs />} />

@@ -215,7 +215,7 @@ export default function LandingPage() {
   const activeFeatures = selectedProduct?.features || [];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white grid-pattern selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen w-full overflow-x-hidden bg-neutral-950 text-white grid-pattern selection:bg-cyan-500 selection:text-black relative">
       
       {/* Sticky Premium Header */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-neutral-950/80 border-b border-white/5 w-full">
