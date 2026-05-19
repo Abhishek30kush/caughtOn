@@ -521,23 +521,14 @@ export default function LandingPage() {
               </div>
             )}
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-              <button
-                type="button"
-                onClick={() => document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 transform active:scale-98 cursor-pointer shadow-[0_8px_25px_rgba(6,182,212,0.2)] text-xs uppercase tracking-wider grow"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span>Go to Checkout Form</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              
+            <div className="pt-2 flex justify-center w-full">
               <button
                 type="button"
                 onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-6 py-3.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-neutral-300 font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 cursor-pointer text-xs"
+                className="w-full sm:w-auto px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-neutral-300 font-bold rounded-xl flex justify-center items-center space-x-2 transition-all duration-300 cursor-pointer text-xs uppercase tracking-wider"
               >
                 <span>View Details & Specs</span>
+                <ChevronRight className="w-3.5 h-3.5 rotate-90" />
               </button>
             </div>
           </div>
