@@ -249,7 +249,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8 }}
           className="space-y-6 order-2 lg:order-1"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] text-white whitespace-pre-line">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.05] text-white">
             {storefrontSettings.heroHeading}
           </h2>
           

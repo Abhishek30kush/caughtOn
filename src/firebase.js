@@ -46,7 +46,7 @@ export const storage = storageInstance;
 
 export const DEFAULT_SETTINGS = {
   heroBadge: "EXCLUSIVELY CRAFTED DROPS AVAILABLE",
-  heroHeading: "Premium\nEveryday\nComfort Trackpants.",
+  heroHeading: "Premium Everyday Comfort Trackpants.",
   heroSubheading: "Unmatched freedom of movement meets ultimate street-ready aesthetics. Experience structural premium tailoring designed for your daily street aesthetic.",
   heroTrustBadge1: "Free COD Delivery India",
   heroTrustBadge2: "100% Street Premium Fabric",
