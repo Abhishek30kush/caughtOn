@@ -383,10 +383,10 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         
         <div className="max-w-4xl mx-auto px-4">
-          <div className="glass-effect p-8 sm:p-10 rounded-3xl border border-white/5 relative shadow-2xl space-y-8">
+          <div className="glass-effect p-8 sm:p-10 rounded-3xl border border-white/5 relative shadow-2xl space-y-5">
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60"></div>
             
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-white/5">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-3 border-b border-white/5">
               <div>
                 <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">
                   Personalize Your Drop
@@ -404,7 +404,7 @@ export default function LandingPage() {
             </div>
 
             {selectedProduct ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center !mt-4">
                 {/* Left Side: Color Picker */}
                 <div className="space-y-4">
                   <label className="block text-xs font-bold tracking-wider text-neutral-400 uppercase">
