@@ -493,7 +493,7 @@ export default function LandingPage() {
       </section>
 
       {/* Catalog Showroom Grid / Single Product Feature Showcase */}
-      <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 relative border-t border-white/5">
+      <section id="catalog" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-6 sm:pt-28 sm:pb-10 relative border-t border-white/5">
         
         {products.length === 0 ? (
           <div className="glass-effect p-12 rounded-3xl border border-white/5 text-center text-neutral-500 font-medium max-w-md mx-auto w-full flex flex-col items-center justify-center gap-3">
@@ -553,7 +553,7 @@ export default function LandingPage() {
       </section>
 
       {/* Checkout Section */}
-      <section id="checkout" className="scroll-mt-20 bg-neutral-950 py-24 relative overflow-hidden border-t border-white/5">
+      <section id="checkout" className="scroll-mt-20 bg-neutral-950 pt-8 pb-20 lg:pt-12 lg:pb-24 relative overflow-hidden border-t border-white/5">
         <div className="max-w-3xl mx-auto px-6 relative">
           <div className="absolute -top-12 -left-12 w-64 h-64 radial-glow rounded-full opacity-50 -z-10 pointer-events-none"></div>
           
