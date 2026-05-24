@@ -309,6 +309,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      try {
+        await deleteDoc(doc(db, 'orders', orderId));
+        toast.success('Order deleted successfully.');
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        toast.error('Failed to delete order.');
+      }
+    }
+  };
+
   const openAddProductModal = () => {
     setEditingProduct(null);
     setProductForm({
@@ -787,6 +799,14 @@ export default function AdminDashboard() {
                         <option value="Shipped" className="bg-neutral-950 text-white">Shipped</option>
                         <option value="Delivered" className="bg-neutral-950 text-white">Delivered</option>
                       </select>
+                      
+                      <button
+                        onClick={() => handleDeleteOrder(order.id)}
+                        className="p-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-lg active:scale-95 flex items-center justify-center shrink-0"
+                        title="Delete Order"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

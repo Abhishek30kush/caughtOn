@@ -164,16 +164,18 @@ export default function LandingPage() {
       });
     }
     
-    // 2. Add all dynamic product images
-    products.forEach((p) => {
-      if (p.imageUrl && !list.some(item => item.url === p.imageUrl)) {
-        list.push({
-          url: p.imageUrl,
-          title: p.title,
-          subtitle: "Featured Catalog Drop"
-        });
-      }
-    });
+    // 2. Add all dynamic product images ONLY when there are no custom hero images at all
+    if (list.length === 0) {
+      products.forEach((p) => {
+        if (p.imageUrl && !list.some(item => item.url === p.imageUrl)) {
+          list.push({
+            url: p.imageUrl,
+            title: p.title,
+            subtitle: "Featured Catalog Drop"
+          });
+        }
+      });
+    }
 
     setSlides(list);
     // Reset index if it gets out of bounds
