@@ -182,6 +182,18 @@ export default function LandingPage() {
     setCurrentSlideIndex(prev => prev >= list.length ? 0 : prev);
   }, [products, heroImageUrl, heroImages, storefrontSettings]);
 
+  // Preload all slideshow images in browser cache for faster loading and seamless transition
+  useEffect(() => {
+    if (slides && slides.length > 0) {
+      slides.forEach((slide) => {
+        if (slide.url) {
+          const img = new Image();
+          img.src = slide.url;
+        }
+      });
+    }
+  }, [slides]);
+
   // Auto-rotation timer for slides
   useEffect(() => {
     if (hasManuallySelected) return;
@@ -453,6 +465,8 @@ export default function LandingPage() {
                       : slides[currentSlideIndex]?.url
                     } 
                     alt={hasManuallySelected ? selectedProduct?.title : slides[currentSlideIndex]?.title} 
+                    loading="eager"
+                    fetchPriority="high"
                     initial={{ opacity: 0, scale: 1.05 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
